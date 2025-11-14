@@ -14,8 +14,6 @@ function passportInit(passport) {
       }
       return done(null, false, { message: "username or password is incorrect" });
     } catch (error) {
-      console.log("💥💥💥💥💥💥", error);
-
       done(error);
     }
   };

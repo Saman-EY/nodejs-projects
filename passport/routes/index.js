@@ -21,20 +21,17 @@ function initRoutes(passport) {
   });
   router.get("/logout", checkAuthentication, (req, res) => {
     req.logOut({ keepSessionInfo: false }, (err) => {
-      if (err) {
-        console.log(err);
-      }
+      if (err) console.log(err);
     });
-
     res.redirect("/login");
   });
-  router.post("/register", checkAuthentication, async (req, res, next) => {
+  router.post("/register", redirectIfIsAuth, async (req, res, next) => {
     try {
       const { fullname, username, password } = req.body;
       const hashed = hashSync(password, 10);
       const user = await userModel.findOne({ username });
       if (user) {
-        const referrer = req?.header("Referrer") ?? req?.headers?.referer;
+        const referrer = req?.header("Referrer") ?? req.headers.referer;
         req.flash("error", "نام کاربری قبلا استفاده شده است");
         return res.redirect(referrer ?? "/register");
       }
@@ -46,7 +43,7 @@ function initRoutes(passport) {
   });
   router.post(
     "/login",
-    checkAuthentication,
+    redirectIfIsAuth,
     passport.authenticate("local", {
       successRedirect: "/profile",
       failureRedirect: "/login",
