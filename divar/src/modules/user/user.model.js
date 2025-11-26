@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const OTPSchema = new Schema({
   code: { type: String, required: false, default: null },
-  expireAt: { type: number, required: false, default: 0 },
+  expireAt: { type: Number, required: false, default: 0 },
 });
 
 const UserSchema = new Schema(
