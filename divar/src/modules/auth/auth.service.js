@@ -3,6 +3,7 @@ const userModel = require("../user/user.model");
 const createHttpError = require("http-errors");
 const { AuthMessage } = require("./auth.messages");
 const { randomInt } = require("crypto");
+const jwt = require("jsonwebtoken");
 
 class AuthService {
   #model;
@@ -49,7 +50,8 @@ class AuthService {
       user.save();
     }
 
-    return user;
+    const accessToken = this.signToken({ mobile, id: user._id });
+    return { user, accessToken };
   }
 
   // check user by mobile, if its not found return error
@@ -60,6 +62,10 @@ class AuthService {
     }
 
     return user;
+  }
+
+  signToken(payload) {
+    return jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: "1m" });
   }
 }
 
