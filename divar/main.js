@@ -4,6 +4,7 @@ const SwaggerConfig = require("./src/configs/swagger.config");
 const mainRouter = require("./src/app.routes");
 const NotFoundHandler = require("./src/common/exceptions/not-found.handler");
 const AllExceptionHandler = require("./src/common/exceptions/all-exception.handler");
+const cookieParser = require("cookie-parser");
 dotenv.config();
 
 async function main() {
@@ -12,11 +13,12 @@ async function main() {
   require("./src/configs/mongoose.config");
   app.use(express.json());
   app.use(express.urlencoded());
-  
+  app.use(cookieParser(process.env.COOKIE_SECRET_KEY));
+
   app.use(mainRouter);
+  SwaggerConfig(app);
   NotFoundHandler(app);
   AllExceptionHandler(app);
-  SwaggerConfig(app);
   app.listen(3000, () => console.log(`server is running on http://localhost:${port}`));
 }
 

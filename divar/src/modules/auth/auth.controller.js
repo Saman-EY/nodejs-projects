@@ -1,3 +1,4 @@
+const NodeEnv = require("../../common/constant/env.enum");
 const { AuthMessage } = require("./auth.messages");
 const authService = require("./auth.service");
 const autobind = require("auto-bind");
@@ -23,7 +24,13 @@ class AuthController {
     try {
       const { mobile, code } = req.body;
       const result = await this.#service.checkOTP(mobile, code);
-      return res.json({ message: AuthMessage.LoginSuccessfully, data: result });
+      return res
+        .cookie("access_token", result.accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === NodeEnv.Production,
+        })
+        .status(200)
+        .json({ message: AuthMessage.LoginSuccessfully, data: result });
     } catch (error) {
       next(error);
     }
