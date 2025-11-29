@@ -69,3 +69,13 @@
  *       200:
  *         description: login successfuly
  */
+/**
+ * @swagger
+ * /auth/logout:
+ *   get:
+ *     summary: logout user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: succes
+ */

@@ -1,3 +1,4 @@
+const CookiesNames = require("../../common/constant/cookie.enum");
 const NodeEnv = require("../../common/constant/env.enum");
 const { AuthMessage } = require("./auth.messages");
 const authService = require("./auth.service");
@@ -31,6 +32,16 @@ class AuthController {
         })
         .status(200)
         .json({ message: AuthMessage.LoginSuccessfully, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async logoutUser(req, res, next) {
+    try {
+      res.clearCookie(CookiesNames.AccessToken).status(200).json({
+        message: AuthMessage.logoutSuccess,
+      });
     } catch (error) {
       next(error);
     }
