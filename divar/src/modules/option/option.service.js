@@ -1,20 +1,22 @@
 const autoBind = require("auto-bind");
-const CategoryModel = require("../category/category.model");
 const OptionMessages = require("./option.message");
 const { default: slugify } = require("slugify");
 const OptionModel = require("./option.model");
 
+const createHttpError = require("http-errors");
+const categoryService = require("../category/category.service");
+
 class OptionService {
   #model;
-  #CategoryModel;
+  #categoryService;
   constructor() {
     autoBind(this);
     this.#model = OptionModel;
-    this.#CategoryModel = CategoryModel;
+    this.#categoryService = categoryService;
   }
 
   async create(optionDto) {
-    const category = await this.checkExistById(optionDto.category);
+    const category = await this.#categoryService.checkExistById(optionDto.category);
     optionDto.category = category._id;
     optionDto.key = slugify(optionDto.key, { trim: true, lower: true, replacement: "_" });
     await this.alreadyEXistByCategoryAndKey(optionDto.key, optionDto.category);
@@ -35,6 +37,7 @@ class OptionService {
     return options;
   }
   async findById(id) {
+    await this.checkExistById(id);
     return await this.#model.findById(id);
   }
   async findByCategoryId(category) {
@@ -75,15 +78,19 @@ class OptionService {
     ]);
     return option;
   }
+  async deleteById(id) {
+    await this.checkExistById(id);
+    return await this.#model.deleteOne({ _id: id });
+  }
 
   async checkExistById(id) {
-    const category = await this.#CategoryModel.findById(id);
+    const option = await this.#model.findById(id);
 
-    if (!category) throw new createHttpError.NotFound(CategoryMessages.NotFound);
-    return category;
+    if (!option) throw new createHttpError.NotFound(OptionMessages.NotFound);
+    return option;
   }
-  async alreadyEXistByCategoryAndKey(key, category2) {
-    const isExist = await this.#model.findOne({ category: category2, key });
+  async alreadyEXistByCategoryAndKey(key, category) {
+    const isExist = await this.#model.findOne({ category, key });
     if (isExist) throw new createHttpError.Conflict(OptionMessages.AlreadyExists);
     return null;
   }

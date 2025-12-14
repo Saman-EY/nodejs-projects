@@ -27,6 +27,8 @@
  *           type: string
  *           nullable: true
  *           description: Optional guide text for helping users
+ *         required:
+ *           type: boolean
  *         category:
  *           type: string
  *           description: ObjectId of the related category
@@ -118,6 +120,24 @@
  *       200:
  *         description: success
  */
+/**
+ * @swagger
+ * /option/{id}:
+ *   delete:
+ *     summary: delete option by id
+ *     tags: [Option]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           description: Category ObjectId
+ *     responses:
+ *       200:
+ *         description: success
+ */
+
 /**
  * @swagger
  * /option:

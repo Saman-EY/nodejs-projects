@@ -40,7 +40,6 @@ class OptionController {
   async findById(req, res, next) {
     try {
       const { id } = req.params;
-      console.log("222", req.params.id);
       const option = await this.#service.findById(id);
       res.status(200).json({ data: option });
     } catch (error) {
@@ -52,6 +51,16 @@ class OptionController {
     try {
       const result = await this.#service.find();
       res.status(200).json({ message: OptionMessages.Find, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteById(req, res, next) {
+    try {
+      const { id } = req.params;
+      await this.#service.deleteById(id);
+      res.status(200).json({ message: OptionMessages.Removed });
     } catch (error) {
       next(error);
     }
