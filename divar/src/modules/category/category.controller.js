@@ -21,6 +21,19 @@ class CategoryController {
       next(error);
     }
   }
+  async remove(req, res, next) {
+    try {
+      const { id } = req.params;
+      const result = await this.#service.deleteById(id);
+      res.status(200).json({
+        message: CategoryMessages.Removed,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getAll(req, res, next) {
     try {
       const result = await this.#service.getAll();

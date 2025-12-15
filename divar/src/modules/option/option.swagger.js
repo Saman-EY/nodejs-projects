@@ -46,6 +46,38 @@
  *         type: string
  *         guide: HEX format
  *         category: 671a83fbf1c7227d1a53f8e1
+ *     UpdateOption:
+ *       type: object
+ *       properties:
+ *         title:
+ *           type: string
+ *           description: Human-readable name of the option
+ *         key:
+ *           type: string
+ *           description: Unique key to identify the option
+ *         guide:
+ *           type: string
+ *           nullable: true
+ *           description: Optional guide text for helping users
+ *         required:
+ *           type: boolean
+ *         category:
+ *           type: string
+ *           description: ObjectId of the related category
+ *         type:
+ *           type: string
+ *           enum: ["number", "string", "array", "boolean"]
+ *           description: The data type of the option value
+ *         enum:
+ *           type: array
+ *           items:
+ *             type: string
+ *       example:
+ *         title: Color
+ *         key: color
+ *         type: string
+ *         guide: HEX format
+ *         category: 671a83fbf1c7227d1a53f8e1
  */
 
 /**
@@ -63,6 +95,25 @@
  *         application/json:
  *           schema:
  *             $ref: "#/components/schemas/CreateOption"
+ *     responses:
+ *       200:
+ *         description: success
+ */
+/**
+ * @swagger
+ * /option/{id}:
+ *   put:
+ *     summary: update option by id
+ *     tags: [Option]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/x-www-form-urlencoded:
+ *           schema:
+ *             $ref: "#/components/schemas/UpdateOption"
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/UpdateOption"
  *     responses:
  *       200:
  *         description: success
