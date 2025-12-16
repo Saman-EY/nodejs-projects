@@ -10,5 +10,8 @@ mainRouter.use("/auth", AuthRouter);
 mainRouter.use("/user", UserRouter);
 mainRouter.use("/category", CategoryRouter);
 mainRouter.use("/option", OptionRouter);
+mainRouter.use("/", (req, res) => {
+  res.render("./pages/index.ejs");
+});
 
 module.exports = mainRouter;
