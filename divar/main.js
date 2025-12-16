@@ -18,7 +18,7 @@ async function main() {
   app.use(express.static("public"));
   app.use(expressEjsLayouts);
   app.set("view engine", "ejs");
-  app.set("layout", "./layouts/panel/main.ejs");
+  app.set("layout", "./layouts/website/main.ejs");
 
   // swagger
   SwaggerConfig(app);
@@ -29,7 +29,7 @@ async function main() {
   // error handler
   NotFoundHandler(app);
   AllExceptionHandler(app);
-  
+
   app.listen(3000, () => console.log(`server is running on http://localhost:${port}`));
 }
 
