@@ -18,19 +18,18 @@ async function main() {
   app.use(express.static("public"));
   app.use(expressEjsLayouts);
   app.set("view engine", "ejs");
-  app.set("layout", "./layouts/website/main.ejs");
+  app.set("layout", "./layouts/panel/main.ejs");
+  // router
+  app.use(mainRouter);
 
   // swagger
   SwaggerConfig(app);
-
-  // router
-  app.use(mainRouter);
 
   // error handler
   NotFoundHandler(app);
   AllExceptionHandler(app);
 
-  app.listen(3000, () => console.log(`server is running on http://localhost:${port}`));
+  app.listen(port, () => console.log(`server is running on http://localhost:${port}`));
 }
 
 main();
