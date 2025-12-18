@@ -65,7 +65,7 @@ class CategoryService {
   }
   async alreadyExistBySlug(slug) {
     const category = await this.#model.findOne({ slug });
-    if (!category) throw new createHttpError.Conflict(CategoryMessages.AlreadyExists);
+    if (category) throw new createHttpError.Conflict(CategoryMessages.AlreadyExists);
     return null;
   }
 }

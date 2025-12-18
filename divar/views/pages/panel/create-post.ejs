@@ -6,18 +6,41 @@
     </div>
     <%}%>
     <div class="p-3">
-      <%if (categories && categories.length > 0) {%>
+      <% if(!options) { %> <%if (categories && categories.length > 0) {%>
       <ul>
         <%categories.forEach(category => {%>
         <li>
           <a href="/post/create?slug=<%=category.slug%>" class="w-100 p-3 d-block bg-light text-dark">
-            <span class="ti ti-users nav-small-cap-icon fs-4"></span>
+            <span class="ti ti-<%=category.icon%> nav-small-cap-icon fs-4"></span>
             <span><%=category.name%></span>
           </a>
         </li>
         <%})%>
       </ul>
-      <%}%>
+      <%}%> <% } else { %>
+      <div>
+        <label class="mb-1">تصاویر آگهی</label>
+        <input type="file" multiple class="form-control" />
+      </div>
+      <div class="my-3">
+        <label class="mb-1">عنوان آگهی</label>
+        <input type="text" placeholder="عنوان آگهی" class="form-control" />
+      </div>
+      <div>
+        <label class="mb-1">توضیحات آگهی</label>
+        <textarea type="text" placeholder="توضیحات آگهی" class="form-control"></textarea>
+      </div>
+      <% options.forEach(option => {%>
+      <label class="my-2"><%=option.title %></label>
+      <% if(option.type == "array"){ %>
+      <select name="<%=option.key%>" class="form-select">
+        <% option.enum.forEach(item => { %>
+        <option value="<%=item%>"><%=item%></option>
+        <% }) %>
+      </select>
+      <% } else { %>
+      <input type="text" name="<%=option.key%>" class="form-control" placeholder="<%=option.guide%>" />
+      <% } %> <%})%> <% } %>
     </div>
   </div>
 </div>

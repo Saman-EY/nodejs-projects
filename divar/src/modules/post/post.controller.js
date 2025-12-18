@@ -17,11 +17,14 @@ class OptionController {
       let match = { parent: null };
       let categories = [];
       let showBack = false;
+      let options;
       if (slug) {
         slug = slug.trim();
         const category = await CategoryModel.findOne({ slug });
         if (!category) throw new createHttpError.NotFound(PostMessages.NotFound);
         match = { parent: category._id };
+        options = await this.#service.getCategoryOptions(category._id);
+        if (options.length === 0) options = null;
         showBack = true;
       }
       categories = await CategoryModel.aggregate([
@@ -29,9 +32,12 @@ class OptionController {
           $match: match,
         },
       ]);
+
+      console.log("optionsss**", options);
       res.render("./pages/panel/create-post.ejs", {
         categories,
         showBack,
+        options,
       });
     } catch (error) {
       next(error);
