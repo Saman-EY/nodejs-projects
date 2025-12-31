@@ -6,6 +6,8 @@
     <title>Divar</title>
     <link rel="shortcut icon" type="image/png" href="/assets/images/logos/divar.svg" />
     <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="stylesheet" href="/dist/css/mapp.min.css" />
+    <link rel="stylesheet" href="/dist/css/fa/style.css" />
   </head>
 
   <body>
@@ -33,7 +35,50 @@
         </div>
       </div>
     </div>
-    <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="/dist/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="/dist/js/mapp.env.js"></script>
+    <script type="text/javascript" src="/dist/js/mapp.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        const app = new Mapp({
+          element: "#map-element",
+          presets: {
+            latlng: {
+              lat: 35,
+              lng: 51,
+            },
+            zoom: 5,
+          },
+          apiKey:
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImFhM2YwYmQzNDc0YWYyYjMyYmZmNzE2ODc5YjRkYTk1ZTJhNjYxNTg2NTM0ZTIwMGY0YjUzOWI1MzlmYjZiYjczZjM1YTJkODQwMjJmZjMzIn0.eyJhdWQiOiIzNjE3NSIsImp0aSI6ImFhM2YwYmQzNDc0YWYyYjMyYmZmNzE2ODc5YjRkYTk1ZTJhNjYxNTg2NTM0ZTIwMGY0YjUzOWI1MzlmYjZiYjczZjM1YTJkODQwMjJmZjMzIiwiaWF0IjoxNzY3MjA3MzcxLCJuYmYiOjE3NjcyMDczNzEsImV4cCI6MTc2OTcxMjk3MSwic3ViIjoiIiwic2NvcGVzIjpbImJhc2ljIl19.LHinA1zRn0RR4WUQ6D31dFQKlKedwJ_AsD31ah8tyefG3PHZDD_1H-d7Il4JF5fj-L4qzKKPnn_EbaUj1Q1PzvOZpJryZLHalJkQw7JZtcQNsfYg9Ot1MZr68RKphEsolX37elkZP6btw94X7YD8kdTGjWyYi94ZrdWbYN5OHobFZgqhmHfU7bT9WpOz14y0EbzyYlbXd2UIBTQx_U3S9VZGTaDDmf5hf6iPFpcnohPOF_gBWRoQu2xSUYzi8yNQ6yrYTo7HzU8mYgwC7kDd77iYLlSAV8eNWE9DOhTPc_pcjicZWZXOXlFn_yJZRoCVWVwG9rzeJx19UDrl_Xj8dQ",
+          gestureHandling: true,
+          gestureHandlingOptions: {
+            duration: 1200,
+            text: {
+              touch: "نقشه را با دو انگشت حرکت دهید",
+              scroll: "برای بزرگنمایی نقشه از ctrl + scroll  استفاده کنید",
+              scrollMac: "برای بزرگنمایی نقشه از \u2318  + scroll  استفاده کنید",
+            },
+          },
+        });
+        app.addLayers();
+        app.map.on("click", function (e) {
+          app.addMarker({
+            name: "advanced-marker",
+            latlng: {
+              lat: e.latlng.lat,
+              lng: e.latlng.lng,
+            },
+            icon: app.icons.red,
+            popup: false,
+          });
+          let { lat, lng } = e.latlng;
+          document.getElementById("lat").value = lat;
+          document.getElementById("lng").value = lng;
+        });
+      });
+    </script>
+    <!-- <script src="/assets/libs/jquery/dist/jquery.min.js"></script> -->
     <script src="/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/sidebarmenu.js"></script>
     <script src="/assets/js/app.min.js"></script>

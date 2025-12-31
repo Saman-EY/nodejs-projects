@@ -33,7 +33,6 @@ class OptionController {
         },
       ]);
 
-      console.log("optionsss**", options);
       res.render("./pages/panel/create-post.ejs", {
         categories,
         showBack,
@@ -46,6 +45,10 @@ class OptionController {
 
   async create(req, res, next) {
     try {
+      console.log(req.body)
+      const { name, icon, slug, parent } = req.body;
+      await this.#service.create({ name, icon, slug, parent });
+      res.status(201).json({ message: PostMessages.Created });
     } catch (error) {
       next(error);
     }

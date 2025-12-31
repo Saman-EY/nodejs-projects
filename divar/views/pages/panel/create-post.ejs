@@ -18,29 +18,41 @@
         <%})%>
       </ul>
       <%}%> <% } else { %>
-      <div>
-        <label class="mb-1">تصاویر آگهی</label>
-        <input type="file" multiple class="form-control" />
-      </div>
-      <div class="my-3">
-        <label class="mb-1">عنوان آگهی</label>
-        <input type="text" placeholder="عنوان آگهی" class="form-control" />
-      </div>
-      <div>
-        <label class="mb-1">توضیحات آگهی</label>
-        <textarea type="text" placeholder="توضیحات آگهی" class="form-control"></textarea>
-      </div>
-      <% options.forEach(option => {%>
-      <label class="my-2"><%=option.title %></label>
-      <% if(option.type == "array"){ %>
-      <select name="<%=option.key%>" class="form-select">
-        <% option.enum.forEach(item => { %>
-        <option value="<%=item%>"><%=item%></option>
-        <% }) %>
-      </select>
-      <% } else { %>
-      <input type="text" name="<%=option.key%>" class="form-control" placeholder="<%=option.guide%>" />
-      <% } %> <%})%> <% } %>
+      <form action="/post/create" method="post" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="lat" id="lat" />
+        <input type="hidden" name="lng" id="lng" />
+        <div class="mb-2">
+          <label class="mb-1">انتخاب آدرس</label>
+          <div id="map-element" class="w-100" style="height: 300px"></div>
+        </div>
+        <div>
+          <label class="mb-1">تصاویر آگهی</label>
+          <input type="file" multiple class="form-control" />
+        </div>
+        <div class="my-3">
+          <label class="mb-1">عنوان آگهی</label>
+          <input type="text" placeholder="عنوان آگهی" class="form-control" />
+        </div>
+        <div>
+          <label class="mb-1">توضیحات آگهی</label>
+          <textarea type="text" placeholder="توضیحات آگهی" class="form-control"></textarea>
+        </div>
+        <% options.forEach(option => {%>
+        <label class="my-2"><%=option.title %></label>
+        <% if(option.type == "array"){ %>
+        <select name="<%=option.key%>" class="form-select">
+          <% option.enum.forEach(item => { %>
+          <option value="<%=item%>"><%=item%></option>
+          <% }) %>
+        </select>
+        <% } else { %>
+        <input type="text" name="<%=option.key%>" class="form-control" placeholder="<%=option.guide%>" />
+        <% } %> <%})%>
+
+        <button type="submit" class="btn btn-info w-100 mt-5">انتشار آگهی</button>
+      </form>
+
+      <% } %>
     </div>
   </div>
 </div>
