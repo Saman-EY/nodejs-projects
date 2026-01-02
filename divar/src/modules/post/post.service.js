@@ -15,6 +15,10 @@ class OptionService {
     const option = await this.#optionModel.find({ category: categoryId });
     return option;
   }
+
+  async create(dto) {
+    return await this.#model.create(dto);
+  }
 }
 
 module.exports = new OptionService();

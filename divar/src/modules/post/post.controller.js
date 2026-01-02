@@ -3,6 +3,9 @@ const postService = require("./post.service");
 const CategoryModel = require("../category/category.model");
 const createHttpError = require("http-errors");
 const PostMessages = require("./post.message");
+const { Types } = require("mongoose");
+const { getAddressDetails } = require("../../common/utils/http");
+const { removePropertyInObject } = require("../../common/utils/functions");
 
 class OptionController {
   #service;
@@ -17,10 +20,10 @@ class OptionController {
       let match = { parent: null };
       let categories = [];
       let showBack = false;
-      let options;
+      let options, category;
       if (slug) {
         slug = slug.trim();
-        const category = await CategoryModel.findOne({ slug });
+        category = await CategoryModel.findOne({ slug });
         if (!category) throw new createHttpError.NotFound(PostMessages.NotFound);
         match = { parent: category._id };
         options = await this.#service.getCategoryOptions(category._id);
@@ -36,6 +39,7 @@ class OptionController {
       res.render("./pages/panel/create-post.ejs", {
         categories,
         showBack,
+        category: category?._id.toString(),
         options,
       });
     } catch (error) {
@@ -45,9 +49,26 @@ class OptionController {
 
   async create(req, res, next) {
     try {
-      console.log(req.body)
-      const { name, icon, slug, parent } = req.body;
-      await this.#service.create({ name, icon, slug, parent });
+      console.log(req.body);
+      const { title_post: title, description: content, lat, lng, categroy } = req.body;
+
+      removePropertyInObject(req.body, ["title_post", "description", "lat", "lng", "category", "images"]);
+      const options = req.body;
+
+      const { address, province, city, district } = await getAddressDetails(lat, lng);
+
+      await this.#service.create({
+        title,
+        content,
+        coordinate: [lat, lng],
+        category: new Types.ObjectId(categroy),
+        images: [],
+        options,
+        address,
+        province,
+        city,
+        district,
+      });
       res.status(201).json({ message: PostMessages.Created });
     } catch (error) {
       next(error);
