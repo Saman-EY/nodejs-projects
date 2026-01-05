@@ -6,6 +6,7 @@ const PostMessages = require("./post.message");
 const { Types } = require("mongoose");
 const { getAddressDetails } = require("../../common/utils/http");
 const { removePropertyInObject } = require("../../common/utils/functions");
+const utf8 = require("utf8");
 
 class OptionController {
   #service;
@@ -50,10 +51,18 @@ class OptionController {
   async create(req, res, next) {
     try {
       console.log(req.body);
+      // remove /public
+      const images = req?.files?.map((image) => image?.path?.slice(7));
       const { title_post: title, description: content, lat, lng, categroy } = req.body;
 
       removePropertyInObject(req.body, ["title_post", "description", "lat", "lng", "category", "images"]);
       const options = req.body;
+      for (let key in options) {
+        let value = options[key];
+        delete options[key];
+        key = utf8.decode(key);
+        options[key] = value;
+      }
 
       const { address, province, city, district } = await getAddressDetails(lat, lng);
 
@@ -62,7 +71,7 @@ class OptionController {
         content,
         coordinate: [lat, lng],
         category: new Types.ObjectId(categroy),
-        images: [],
+        images,
         options,
         address,
         province,
