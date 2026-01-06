@@ -1,0 +1,39 @@
+<div class="row">
+  <div class="col-lg-8 d-flex align-items-stretch">
+    <div class="card w-100">
+      <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">آگهی های من</h5>
+        <div class="table-responsive">
+          <table class="table text-nowrap mb-0 align-middle">
+            <thead class="text-dark fs-4">
+              <tr>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">شناسه</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">عنوان</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">توضیحات</h6>
+                </th>
+                <th class="border-bottom-0">
+                  <h6 class="fw-semibold mb-0">تاریخ انتشار</h6>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <% posts.forEach(post => { %>
+              <tr>
+                <td><%=post._id %></td>
+                <td><%=post.title %></td>
+                <td><%=post.content %></td>
+                <td><%=moment(post.createdAt).locale('fa').format('jDD jMMMM jYYYY') %></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
