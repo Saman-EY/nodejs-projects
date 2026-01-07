@@ -1,5 +1,5 @@
 const AuthorizationMessage = Object.freeze({
-  login: "login your aaccount",
+  login: "login your account",
   loginAgain: "please login again",
   unAthorized: "unauthorized please login again",
   notFound: "user not found",

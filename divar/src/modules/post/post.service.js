@@ -1,6 +1,9 @@
 const autoBind = require("auto-bind");
 const PostModel = require("./post.model");
 const OptionModel = require("../option/option.model");
+const { isValidObjectId } = require("mongoose");
+const createHttpError = require("http-errors");
+const PostMessages = require("./post.message");
 
 class OptionService {
   #model;
@@ -19,8 +22,9 @@ class OptionService {
   async create(dto) {
     return await this.#model.create(dto);
   }
-  async find(query = {}) {
-    return await this.#model.find(query);
+  async find(userId) {
+    if (userId && isValidObjectId(userId)) return await this.#model.find({userId});
+    throw new createHttpError.BadRequest(PostMessages.RequestNotValid);
   }
 }
 

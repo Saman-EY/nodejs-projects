@@ -63,10 +63,11 @@ class OptionController {
         key = utf8.decode(key);
         options[key] = value;
       }
-
+      const userId = req.user._id;
       const { address, province, city, district } = await getAddressDetails(lat, lng);
 
       await this.#service.create({
+        userId,
         title,
         content,
         coordinate: [lat, lng],
@@ -78,16 +79,30 @@ class OptionController {
         city,
         district,
       });
-      res.status(201).json({ message: PostMessages.Created });
+      // res.status(201).json({ message: PostMessages.Created });
+      const posts = await this.#service.find(userId);
+      res.render("./pages/panel/posts.ejs", {
+        posts,
+        count: posts.length,
+        success_message: PostMessages.Created,
+        error: PostMessages.Created,
+      });
     } catch (error) {
       next(error);
     }
   }
 
-  async find(req, res, next) {
+  async findMyPosts(req, res, next) {
     try {
-      const posts = await this.#service.find();
-      return res.render("./pages/panel/posts.ejs", { posts });
+      console.log(req.user);
+      const userId = req.user._id;
+      const posts = await this.#service.find(userId);
+      return res.render("./pages/panel/posts.ejs", {
+        posts,
+        count: posts.length,
+        success_message: null,
+        error: null,
+      });
     } catch (error) {
       next(error);
     }
