@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fa">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title><%= post.title %></title>
+
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <style>
+      .swiper {
+        width: 600px;
+        height: 300px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="post">
+        <nav></nav>
+
+        <!-- ================= POST CONTENT ================= -->
+        <div class="post-content">
+          <div class="post-title">
+            <div class="post-title-h1"><%= post.title %></div>
+            <div class="post-title-location"><%= post.city || post.province %></div>
+          </div>
+
+          <div class="post-action">
+            <button class="post-button-action button" id="call-detail">اطلاعات تماس</button>
+            <button class="post-button-chat button">چت</button>
+
+            <img class="post-bookmark" src="/home/img/bookmark.svg" alt="" />
+            <img class="post-share" src="/home/img/share.svg" alt="" />
+          </div>
+
+          <div class="post-list">
+            <a href="" class="post-landing">
+              <div class="post-row">
+                <div class="post-landing-mobile">
+                  <img src="/home/img/mobile.svg" alt="" />
+                  <p>مشخصات کامل آگهی</p>
+                </div>
+                <div class="post-landing-arrow">
+                  <img src="/home/img/arrow-down.svg" alt="" />
+                </div>
+              </div>
+            </a>
+
+            <% for (key in post.options) { %>
+            <hr />
+            <div class="post-list-item post-row">
+              <div class="post-list-title"><%= key %></div>
+              <div class="post-list-detail"><%= post.options[key] %></div>
+            </div>
+            <% } %>
+          </div>
+
+          <div class="post-description">
+            <h2 class="post-description-title">توضیحات</h2>
+            <div class="post-description-detail">
+              <p><%= post.content %></p>
+            </div>
+          </div>
+        </div>
+        <!-- ================= END POST CONTENT ================= -->
+
+        <!-- ================= IMAGE SLIDER ================= -->
+        <div class="post-image">
+          <div class="swiper">
+            <div class="swiper-wrapper">
+              <% for (let image of post.images) { %>
+              <div class="swiper-slide post-thumbnail">
+                <img src="/<%= image %>" alt="" style="width: 100%" />
+              </div>
+              <% } %>
+            </div>
+
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-scrollbar"></div>
+          </div>
+        </div>
+        <!-- ================= END SLIDER ================= -->
+
+        <div class="post-note">
+          <div class="post-note-input">
+            <textarea name="note" id="note" placeholder="یادداشت شما..."></textarea>
+          </div>
+          <p>یادداشت تنها برای شما قابل دیدن است و پس از حذف آگهی، پاک خواهد شد.</p>
+        </div>
+
+        <a href="#" class="post-privacy-link">
+          <div class="post-privacy post-row">
+            <img src="/home/img/message.svg" alt="" />
+            <p>راهنمایی خرید امن</p>
+          </div>
+        </a>
+
+        <a href="#" class="post-privacy-link">
+          <div class="post-privacy post-row">
+            <img src="/home/img/message.svg" alt="" />
+            <p>ثبت تخلف و مشکل آگهی</p>
+          </div>
+        </a>
+
+        <footer></footer>
+      </div>
+    </div>
+
+    <!-- ================= SCRIPTS ================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script>
+      const callDetailBtn = document.querySelector("#call-detail");
+
+      callDetailBtn.addEventListener("click", () => {
+        Swal.fire({
+          title: "<%= post.userMobile %>",
+          confirmButtonText: "تماس",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "tel:<%= post.userMobile %>";
+          }
+        });
+      });
+
+      const swiper = new Swiper(".swiper", {
+        direction: "horizontal",
+        loop: true,
+
+        pagination: {
+          el: ".swiper-pagination",
+        },
+
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+
+        scrollbar: {
+          el: ".swiper-scrollbar",
+        },
+      });
+    </script>
+  </body>
+</html>

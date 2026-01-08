@@ -37,7 +37,10 @@
                 <td><%=post.title %></td>
                 <td><%=post.content %></td>
                 <td><%=moment(post.createdAt).locale('fa').format('jDD jMMMM jYYYY') %></td>
-                <td><a href="#" class="btn btn-red mx-1"> حذف </a><a href="#" class="btn btn-primary"> مشاهده </a></td>
+                <td>
+                  <a href="/post/delete/<%=post._id %>" class="btn btn-red mx-1"> حذف </a>
+                  <a href="/post/<%=post._id%>" class="btn btn-primary"> مشاهده </a>
+                </td>
               </tr>
               <% })} %>
             </tbody>

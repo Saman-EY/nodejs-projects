@@ -10,6 +10,7 @@ const utf8 = require("utf8");
 
 class OptionController {
   #service;
+  #success_message;
   constructor() {
     autoBind(this);
     this.#service = postService;
@@ -50,10 +51,9 @@ class OptionController {
 
   async create(req, res, next) {
     try {
-      console.log(req.body);
       // remove /public
       const images = req?.files?.map((image) => image?.path?.slice(7));
-      const { title_post: title, description: content, lat, lng, categroy } = req.body;
+      const { title_post: title, description: content, lat, lng, categroy, amount } = req.body;
 
       removePropertyInObject(req.body, ["title_post", "description", "lat", "lng", "category", "images"]);
       const options = req.body;
@@ -69,6 +69,7 @@ class OptionController {
       await this.#service.create({
         userId,
         title,
+        amount,
         content,
         coordinate: [lat, lng],
         category: new Types.ObjectId(categroy),
@@ -80,13 +81,8 @@ class OptionController {
         district,
       });
       // res.status(201).json({ message: PostMessages.Created });
-      const posts = await this.#service.find(userId);
-      res.render("./pages/panel/posts.ejs", {
-        posts,
-        count: posts.length,
-        success_message: PostMessages.Created,
-        error: PostMessages.Created,
-      });
+      this.#success_message = PostMessages.Created;
+      return res.redirect("/post/my");
     } catch (error) {
       next(error);
     }
@@ -94,14 +90,50 @@ class OptionController {
 
   async findMyPosts(req, res, next) {
     try {
-      console.log(req.user);
       const userId = req.user._id;
       const posts = await this.#service.find(userId);
-      return res.render("./pages/panel/posts.ejs", {
+      res.render("./pages/panel/posts.ejs", {
         posts,
         count: posts.length,
-        success_message: null,
+        success_message: this.#success_message,
         error: null,
+      });
+      this.#success_message = null;
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async remove(req, res, next) {
+    try {
+      const { id } = req.params;
+      await this.#service.deleteById(id);
+      this.#success_message = PostMessages.Deleted;
+      res.redirect("/post/my");
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async showPost(req, res, next) {
+    try {
+      const { id } = req.params;
+      const post = await this.#service.checkById(id);
+      res.locals.layout = "./layouts/website/main.ejs";
+      res.render("./pages/home/post.ejs", {
+        post,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async showPostList(req, res, next) {
+    try {
+      const query = req.query;
+      const posts = await this.#service.findAll(query);
+      res.locals.layout = "./layouts/website/main.ejs";
+      res.render("./pages/home/index.ejs", {
+        posts,
       });
     } catch (error) {
       next(error);

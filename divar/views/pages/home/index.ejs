@@ -1,16 +1,22 @@
 <div class="main-gird-posts">
+  <% for(let post of posts){ %>
   <div class="main-post">
-    <a href="./post.html" class="post-link">
+    <a href="/post/<%=post._id%>" class="post-link">
       <article>
         <div class="main-post-detail">
-          <h2 class="main-post-title">آیفون ۱۴ پرومکس</h2>
-          <div class="main-post-price">۱۰۰,۰۰۰,۰۰۰ تومان</div>
-          <div class="main-post-time">لحظاتی پیش در ایران</div>
+          <h2 class="main-post-title"><%=post.title%></h2>
+          <div class="main-post-price"><%=post.amount%></div>
+          <div class="main-post-time"><%=moment(post.createdAt).locale('fa').format('jDD jMMMM jYYYY') %></div>
         </div>
         <div class="main-post-thumbnail">
-          <img src="/home/img/iphone-14-pro-max-purple-1.jpg" alt="" />
+          <% if(post.images?.[0]) { %>
+          <img style="object-fit: cover" src="<%=post.images?.[0] %>" alt="" />
+          <% } else { %>
+            <div style="background-color: rgba(0, 0, 0, 0.107); width: 150px; height: 150px; border-radius: 5px;"></div>
+          <% } %>
         </div>
       </article>
     </a>
   </div>
+  <% } %>
 </div>
