@@ -1,8 +1,8 @@
-const ProductType = {
+const ProductTypes = {
   Single: "single",
   Sizing: "sizing",
   Coloring: "coloring",
 };
 module.exports = {
-  ProductType,
+  ProductTypes,
 };

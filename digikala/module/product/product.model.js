@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../../config/sequelize");
-const { ProductType } = require("../../common/prodcut.const");
+const { ProductTypes } = require("../../common/prodcut.const");
 
 const Product = sequelize.define(
   "product",
@@ -21,7 +21,7 @@ const Product = sequelize.define(
       defaultValue: false,
     },
     type: {
-      type: DataTypes.ENUM(...Object.values(ProductType)),
+      type: DataTypes.ENUM(...Object.values(ProductTypes)),
     },
     count: {
       type: DataTypes.INTEGER,
