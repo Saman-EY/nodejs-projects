@@ -59,10 +59,10 @@ const ProductDetail = sequelize.define(
 const ProductColor = sequelize.define(
   "product_color",
   {
-    color_name: {
+    name: {
       type: DataTypes.STRING,
     },
-    color_code: {
+    code: {
       type: DataTypes.STRING,
     },
     productId: {

@@ -1,4 +1,5 @@
 const { Product, ProductDetail, ProductColor, ProductSize } = require("../module/product/product.model");
+const { User, Otp } = require("../module/user/user.model");
 const { sequelize } = require("./sequelize");
 
 async function initialDatabase() {
@@ -11,7 +12,11 @@ async function initialDatabase() {
   Product.hasMany(ProductSize, { foreignKey: "productId", sourceKey: "id", as: "sizes" });
   ProductSize.belongsTo(Product, { foreignKey: "productId", targetKey: "id" });
 
-  await sequelize.sync({ force: true });
+  User.hasOne(Otp, { foreignKey: "userId", sourceKey: "id", as: "otp" });
+  Otp.hasOne(User, { foreignKey: "otpId", sourceKey: "id", as: "user" });
+  Otp.belongsTo(User, { foreignKey: "userId", targetKey: "id" });
+
+  await sequelize.sync({ alter: true });
 }
 
 module.exports = {

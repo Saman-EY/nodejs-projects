@@ -3,7 +3,7 @@ const { Sequelize } = require("sequelize");
 const { config } = require("dotenv");
 config();
 const sequelize = new Sequelize({
-  dialect: "mariadb",
+  dialect: "mysql",
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   username: process.env.DB_USER,
