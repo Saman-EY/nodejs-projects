@@ -12,12 +12,12 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    otpId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+    // otpId: {
+    //   type: DataTypes.INTEGER,
+    //   allowNull: true,
+    // },
   },
-  { tableName: "user", createdAt: "created_at", updatedAt: false },
+  { freezeTableName: true, createdAt: "created_at", updatedAt: false },
 );
 
 const Otp = sequelize.define(
@@ -36,7 +36,7 @@ const Otp = sequelize.define(
       allowNull: false,
     },
   },
-  { timestamps: false, tableName: "user_otp" },
+  { timestamps: false, freezeTableName: true },
 );
 
 module.exports = {
