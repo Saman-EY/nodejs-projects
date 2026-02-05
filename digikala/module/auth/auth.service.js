@@ -80,8 +80,6 @@ async function verifyRefreshToken(req, res, next) {
         where: { token },
       });
 
-      console.log(existToken);
-
       if (existToken) throw createHttpError(401, "Token expired!");
 
       await RefreshToken.create({
@@ -96,6 +94,7 @@ async function verifyRefreshToken(req, res, next) {
         refresh_token,
       });
     }
+    throw createHttpError(401, "login to your account!");
   } catch (error) {
     next(error);
   }
