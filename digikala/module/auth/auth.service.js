@@ -2,6 +2,7 @@ const createHttpError = require("http-errors");
 const { User, Otp } = require("../user/user.model");
 const jwt = require("jsonwebtoken");
 const { config } = require("dotenv");
+const { RefreshToken } = require("../user/refreshToken.model");
 config();
 async function sendOtpService(req, res, next) {
   try {
@@ -75,6 +76,19 @@ async function verifyRefreshToken(req, res, next) {
       const user = await User.findByPk(verifiedToken.userId);
       if (!user) throw createHttpError(401, "login to your account!");
 
+      const existToken = await RefreshToken.findOne({
+        where: { token },
+      });
+
+      console.log(existToken);
+
+      if (existToken) throw createHttpError(401, "Token expired!");
+
+      await RefreshToken.create({
+        token,
+        userId: user.id,
+      });
+
       const { access_token, refresh_token } = generateTokens({ userId: user.id });
 
       return res.json({
@@ -107,5 +121,5 @@ module.exports = {
   sendOtpService,
   checkOtpService,
   generateTokens,
-  verifyRefreshToken
+  verifyRefreshToken,
 };
