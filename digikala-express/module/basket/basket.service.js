@@ -59,11 +59,125 @@ async function addToBasketService(req, res, next) {
     } else {
       await Basket.create({ ...basketItem, count: 1 });
     }
+
+    res.json({
+      messaage: "Added To Cart Successfuly",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getUserBasketService(req, res, next) {
+  try {
+    const { id: userId } = req.user;
+    const basket = await Basket.findAll({
+      where: {
+        userId,
+      },
+      include: [
+        { model: Product, as: "product" },
+        { model: ProductColor, as: "color" },
+        { model: ProductSize, as: "size" },
+      ],
+    });
+
+    let totalAmount = 0;
+    let totalDiscount = 0;
+    let finalAmount = 0;
+    let finalBasket = [];
+
+    for (const item of basket) {
+      const { product, color, size, count } = item;
+      const productIndex = finalBasket.findIndex((item) => item.id === product.id);
+      let productData = finalBasket.find((item) => item.id === product.id);
+      if (!productData) {
+        productData = {
+          id: product.id,
+          title: product.title,
+          count: product.count,
+          type: product.type,
+          count,
+          sizes: [],
+          colors: [],
+        };
+      } else {
+        productData.count += count;
+      }
+
+      if (product?.type === ProductTypes.Coloring && color) {
+        let price = color?.price * count;
+        totalAmount += price;
+        let discountAmount = 0;
+        let finalPrice = 0;
+
+        if (color?.active_discount && color?.discount > 0) {
+          discountAmount = price * (color?.discount / 100);
+          totalDiscount += discountAmount;
+          finalPrice = price - discountAmount;
+          finalAmount += finalPrice;
+          productData.colors.push({
+            id: color.id,
+            name: color.name,
+            code: color.code,
+            price,
+            discountAmount,
+            finalAmount,
+            count,
+          });
+        }
+      } else if (product?.type === ProductTypes.Sizing && size) {
+        let price = size?.price * count;
+        totalAmount += price;
+        let discountAmount = 0;
+        let finalPrice = 0;
+
+        if (size?.active_discount && size?.discount > 0) {
+          discountAmount = price * (size?.discount / 100);
+          totalDiscount += discountAmount;
+          finalPrice = price - discountAmount;
+          finalAmount += finalPrice;
+          productData.sizes.push({
+            id: size.id,
+            size: size?.size,
+            price,
+            discountAmount,
+            finalAmount,
+            count,
+          });
+        }
+      } else if (product?.type === ProductTypes.Single && product) {
+        let price = product?.price * count;
+        totalAmount += price;
+        let discountAmount = 0;
+        let finalPrice = 0;
+
+        if (product?.active_discount && product?.discount > 0) {
+          discountAmount = price * (product?.discount / 100);
+          totalDiscount += discountAmount;
+          finalPrice = price - discountAmount;
+          finalAmount += finalPrice;
+          productData.finalPrice = finalPrice;
+          productData.discountAmount = discountAmount;
+        }
+      }
+
+      if (productIndex > -1) finalBasket[productIndex] = productData;
+      else finalBasket.push(productData);
+    }
+
+    res.json({
+      totalAmount,
+      totalDiscount,
+      finalAmount,
+
+      basket: finalBasket,
+    });
   } catch (error) {
     next(error);
   }
 }
 
 module.exports = {
-  addToBasketService
-}
+  addToBasketService,
+};
