@@ -1,3 +1,5 @@
+const { Basket } = require("../module/basket/basket.model");
+const { Discount } = require("../module/discount/discount.model");
 const { Product, ProductDetail, ProductColor, ProductSize } = require("../module/product/product.model");
 const { User, Otp } = require("../module/user/user.model");
 const { sequelize } = require("./sequelize");
@@ -15,6 +17,18 @@ async function initialDatabase() {
   User.hasOne(Otp, { foreignKey: "userId", sourceKey: "id", as: "otp" });
   // Otp.hasOne(User, { foreignKey: "otpId", sourceKey: "id", as: "user" });
   Otp.belongsTo(User, { foreignKey: "userId", targetKey: "id" });
+
+  Product.hasMany(Basket, { foreignKey: "productId", sourceKey: "id", as: "basket" });
+  ProductSize.hasMany(Basket, { foreignKey: "sizeId", sourceKey: "id", as: "basket" });
+  ProductColor.hasMany(Basket, { foreignKey: "colorId", sourceKey: "id", as: "basket" });
+  User.hasMany(Basket, { foreignKey: "userId", sourceKey: "id", as: "basket" });
+  Discount.hasMany(Basket, { foreignKey: "discountId", sourceKey: "id", as: "basket" });
+
+  Basket.belongsTo(Product, { foreignKey: "productId", targetKey: "id", as: "product" });
+  Basket.belongsTo(ProductSize, { foreignKey: "sizeId", targetKey: "id", as: "size" });
+  Basket.belongsTo(ProductColor, { foreignKey: "colorId", targetKey: "id", as: "color" });
+  Basket.belongsTo(User, { foreignKey: "userId", targetKey: "id", as: "user" });
+  Basket.belongsTo(Discount, { foreignKey: "discountId", targetKey: "id", as: "discount" });
 
   await sequelize.sync({ alter: true });
 }
