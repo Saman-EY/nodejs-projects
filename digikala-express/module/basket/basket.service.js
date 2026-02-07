@@ -27,6 +27,7 @@ async function addToBasketService(req, res, next) {
     if (product.type === ProductTypes.Coloring) {
       if (!colorId) throw createHttpError(400, "Product Color Details Required!");
       const productColor = await ProductColor.findByPk(colorId);
+
       if (!productColor) throw createHttpError(404, "Color Not Found!");
       basketItem.colorId = colorId;
       colorCount = product?.count ?? 0;
@@ -34,11 +35,13 @@ async function addToBasketService(req, res, next) {
     } else if (product.type === ProductTypes.Sizing) {
       if (!sizeId) throw createHttpError(400, "Product Size Details Required!");
       const productSize = await ProductSize.findByPk(sizeId);
+
       if (!productSize) throw createHttpError(404, "Size Not Found!");
       basketItem.sizeId = sizeId;
       sizeCountCount = product?.count ?? 0;
       if (sizeCountCount === 0) throw createHttpError(400, "product size out of stock!");
     } else {
+      productCount = product?.count ?? 0;
       if (productCount === 0) throw createHttpError(400, "product out of stock!");
     }
     const basket = await Basket.findOne({
@@ -114,18 +117,18 @@ async function getUserBasketService(req, res, next) {
         if (color?.active_discount && color?.discount > 0) {
           discountAmount = price * (color?.discount / 100);
           totalDiscount += discountAmount;
-          finalPrice = price - discountAmount;
-          finalAmount += finalPrice;
-          productData.colors.push({
-            id: color.id,
-            name: color.name,
-            code: color.code,
-            price,
-            discountAmount,
-            finalAmount,
-            count,
-          });
         }
+        finalPrice = price - discountAmount;
+        finalAmount += finalPrice;
+        productData.colors.push({
+          id: color.id,
+          name: color.name,
+          code: color.code,
+          price,
+          discountAmount,
+          finalPrice,
+          count,
+        });
       } else if (product?.type === ProductTypes.Sizing && size) {
         let price = size?.price * count;
         totalAmount += price;
@@ -135,17 +138,17 @@ async function getUserBasketService(req, res, next) {
         if (size?.active_discount && size?.discount > 0) {
           discountAmount = price * (size?.discount / 100);
           totalDiscount += discountAmount;
-          finalPrice = price - discountAmount;
-          finalAmount += finalPrice;
-          productData.sizes.push({
-            id: size.id,
-            size: size?.size,
-            price,
-            discountAmount,
-            finalAmount,
-            count,
-          });
         }
+        finalPrice = price - discountAmount;
+        finalAmount += finalPrice;
+        productData.sizes.push({
+          id: size.id,
+          size: size?.size,
+          price,
+          discountAmount,
+          finalPrice,
+          count,
+        });
       } else if (product?.type === ProductTypes.Single && product) {
         let price = product?.price * count;
         totalAmount += price;
@@ -155,11 +158,12 @@ async function getUserBasketService(req, res, next) {
         if (product?.active_discount && product?.discount > 0) {
           discountAmount = price * (product?.discount / 100);
           totalDiscount += discountAmount;
-          finalPrice = price - discountAmount;
-          finalAmount += finalPrice;
-          productData.finalPrice = finalPrice;
-          productData.discountAmount = discountAmount;
         }
+        finalPrice = price - discountAmount;
+        finalAmount += finalPrice;
+        productData.price = price;
+        productData.finalPrice = finalPrice;
+        productData.discountAmount = discountAmount;
       }
 
       if (productIndex > -1) finalBasket[productIndex] = productData;
@@ -180,4 +184,5 @@ async function getUserBasketService(req, res, next) {
 
 module.exports = {
   addToBasketService,
+  getUserBasketService,
 };
