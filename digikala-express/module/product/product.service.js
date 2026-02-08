@@ -47,7 +47,6 @@ async function createProductService(req, res, next) {
 
     if (type === ProductTypes.Coloring) {
       if (colors && Array.isArray(colors)) {
-        console.log(colors);
         let colorList = [];
         for (const item of colors) {
           colorList.push({
@@ -83,8 +82,6 @@ async function createProductService(req, res, next) {
         }
       }
     }
-
-    console.log("created", product.dataValues);
 
     return res.json({
       message: "product created successfully",

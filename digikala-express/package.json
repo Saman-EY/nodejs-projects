@@ -13,6 +13,7 @@
     "dependencies": {
         "@sequelize/mariadb": "^7.0.0-alpha.47",
         "@sequelize/mysql": "^7.0.0-alpha.47",
+        "axios": "^1.13.4",
         "express": "^5.2.1",
         "express-validation": "^4.1.1",
         "http-errors": "^2.0.1",
