@@ -120,7 +120,94 @@ async function paymentVerifyService(req, res, next) {
   }
 }
 
+// checkout demo
+async function checkoutService(req, res, next) {
+  try {
+    const { id: userId } = req.user;
+    const { basket, totalAmount, finalAmount, totalDiscount } = await getUserBasketById(userId);
+
+    if (basket.length === 0) throw createHttpError(400, "First add item to the cart!");
+
+    const payment = await Payment.create({
+      userId,
+      amount: finalAmount,
+      status: false,
+    });
+
+    const order = await Order.create({
+      userId,
+      paymentId: payment.id,
+      total_amount: totalAmount,
+      final_amount: finalAmount,
+      discount_amount: totalDiscount,
+      status: OrderStatus.Pending,
+      address: "Tehran - Shademan st - Teymoori st",
+    });
+
+    payment.orderId = order.id;
+    let orderList = [];
+
+    for (const item of basket) {
+      let items = [];
+
+      if (item?.sizes?.length > 0) {
+        items = item?.sizes.map((size) => {
+          return {
+            orderId: order.id,
+            productId: item?.id,
+            sizeId: size?.id,
+            count: size?.count,
+          };
+        });
+      } else if (item?.colors?.length > 0) {
+        items = item?.colors.map((color) => {
+          return {
+            orderId: order.id,
+            productId: item?.id,
+            colorId: color?.id,
+            count: color?.count,
+          };
+        });
+      } else {
+        items = [
+          {
+            orderId: order.id,
+            productId: item?.id,
+            count: item?.count,
+          },
+        ];
+      }
+
+      orderList.push(...items);
+    }
+
+    await OrderItem.bulkCreate(orderList);
+    payment.authority = "test1";
+
+    // const payment = await Payment.findOne({ where: { authority: Authority } });
+    if (!payment) throw createHttpError(404, "payment not found!");
+    payment.status = true;
+    payment.refId = "3244";
+    if (!order) throw createHttpError(404, "order nor found!");
+    order.status = OrderStatus.InProgress;
+    await order.save();
+    await payment.save();
+    await Basket.destroy({
+      where: {
+        userId: order.userId,
+      },
+    });
+
+    return res.json({
+      message: "Order Submited!",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   paymentBasketService,
   paymentVerifyService,
+  checkoutService,
 };
