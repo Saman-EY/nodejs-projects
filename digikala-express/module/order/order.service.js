@@ -1,8 +1,9 @@
 const createHttpError = require("http-errors");
 const { Order } = require("./order.model");
 const { OrderStatus } = require("../../common/order.const");
+const { Payment } = require("../payment/payment.model");
 
-async function getOrderService(req, res, next) {
+async function getOrdersService(req, res, next) {
   try {
     const { id } = req.user;
     const { status } = req.query;
@@ -23,7 +24,39 @@ async function getOrderService(req, res, next) {
     next(error);
   }
 }
+async function getSingleOrdersService(req, res, next) {
+  try {
+    const { id: userId } = req.user;
+    const { id } = req.params;
+
+    const orders = await Order.findAll({
+      where: {
+        userId,
+        id,
+      },
+      attributes: {
+        exclude: ["paymentId", "userId"],
+      },
+      include: [
+        {
+          model: Payment,
+          as: "payment",
+          attributes: {
+            exclude: ["orderId", "userId"],
+          },
+        },
+      ],
+    });
+
+    res.json({
+      orders,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
 module.exports = {
-    getOrderService
-}
+  getOrdersService,
+  getSingleOrdersService,
+};

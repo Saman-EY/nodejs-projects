@@ -1,10 +1,11 @@
 const { Router } = require("express");
-const { getOrderService } = require("./order.service");
+const { getOrdersService, getSingleOrdersService } = require("./order.service");
 const { AuthGuard } = require("../auth/auth.guard");
 
 const router = Router();
 
-router.get("/", AuthGuard,  getOrderService);
+router.get("/", AuthGuard, getOrdersService);
+router.get("/:id", AuthGuard, getSingleOrdersService);
 
 module.exports = {
   ordersRouter: router,
