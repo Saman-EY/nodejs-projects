@@ -189,7 +189,7 @@ async function checkoutService(req, res, next) {
     payment.status = true;
     payment.refId = "3244";
     if (!order) throw createHttpError(404, "order nor found!");
-    order.status = OrderStatus.InProgress;
+    order.status = OrderStatus.Packed;
     await order.save();
     await payment.save();
     await Basket.destroy({

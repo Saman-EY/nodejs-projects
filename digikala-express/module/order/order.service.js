@@ -55,8 +55,56 @@ async function getSingleOrdersService(req, res, next) {
     next(error);
   }
 }
+async function setPackedStatusToOrderService(req, res, next) {
+  try {
+    const { id } = req.params;
+    const order = await Order.findByPk(id);
+    if (!order) throw createHttpError(404, "Order Not Found!");
+
+    if (order.status !== OrderStatus.Packed) throw createHttpError(400, "wrong status.");
+    order.status = OrderStatus.Packed;
+    return res.json({
+      message: "status has set to Packed",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+async function setCancledStatusToOrderService(req, res, next) {
+  try {
+    const { id } = req.params;
+    const order = await Order.findByPk(id);
+    if (!order) throw createHttpError(404, "Order Not Found!");
+
+    if ([[OrderStatus.Pending, OrderStatus.Canceled, OrderStatus.Delivered]].includes(order.status)) throw createHttpError(400, "wrong status.");
+    order.status = OrderStatus.Canceled ;
+    return res.json({
+      message: "status has set to canceled",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+async function setDeliveryStatusToOrderService(req, res, next) {
+  try {
+    const { id } = req.params;
+    const order = await Order.findByPk(id);
+    if (!order) throw createHttpError(404, "Order Not Found!");
+
+    if (order.status !== OrderStatus.InTransit) throw createHttpError(400, "wrong status.");
+    order.status = OrderStatus.Delivered;
+    return res.json({
+      message: "status has set to Packed",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
 module.exports = {
   getOrdersService,
   getSingleOrdersService,
+  setDeliveryStatusToOrderService,
+  setCancledStatusToOrderService,
+  setPackedStatusToOrderService,
 };
