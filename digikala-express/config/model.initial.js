@@ -3,6 +3,7 @@ const { Discount } = require("../module/discount/discount.model");
 const { Order, OrderItem } = require("../module/order/order.model");
 const { Payment } = require("../module/payment/payment.model");
 const { Product, ProductDetail, ProductColor, ProductSize } = require("../module/product/product.model");
+const { Role, RolePermission, Permission } = require("../module/RBAC/rbac.model");
 const { User, Otp } = require("../module/user/user.model");
 const { sequelize } = require("./sequelize");
 
@@ -35,10 +36,19 @@ async function initialDatabase() {
   Order.hasMany(OrderItem, { foreignKey: "orderId", as: "items", sourceKey: "id" });
   OrderItem.belongsTo(Order, { foreignKey: "orderId", as: "order", targetKey: "id" });
 
+  OrderItem.belongsTo(Product, { foreignKey: "productId", as: "product", targetKey: "id" });
+  OrderItem.belongsTo(ProductColor, { foreignKey: "colorId", as: "color", targetKey: "id" });
+  OrderItem.belongsTo(ProductSize, { foreignKey: "sizeId", as: "size", targetKey: "id" });
+
   User.hasMany(Order, { foreignKey: "userId", as: "order", sourceKey: "id" });
   User.hasMany(Payment, { foreignKey: "userId", as: "payment", sourceKey: "id" });
   Order.hasOne(Payment, { foreignKey: "orderId", as: "payment", sourceKey: "id", onDelete: "CASCADE" });
   Payment.hasOne(Order, { foreignKey: "paymentId", as: "order", sourceKey: "id", onDelete: "CASCADE" });
+
+  Role.hasMany(RolePermission, { foreignKey: "roleId", as: "rolePermissions", sourceKey: "id" });
+  Permission.hasMany(RolePermission, { foreignKey: "permissionId", as: "rolePermissions", sourceKey: "id" });
+  RolePermission.belongsTo(Role, { foreignKey: "roleId", targetKey: "id" });
+  RolePermission.belongsTo(Permission, { foreignKey: "permissionId", targetKey: "id" });
 
   await sequelize.sync({ alter: true });
 }
