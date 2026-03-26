@@ -6,7 +6,7 @@ export class OtpEntity {
   @PrimaryGeneratedColumn("increment")
   id: number;
   @Column()
-  code: string;
+  code: number;
   @Column()
   expires_in: Date;
   @Column()
