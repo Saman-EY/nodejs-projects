@@ -5,12 +5,16 @@ import { Repository } from "typeorm";
 import { OtpEntity } from "../user/entities/otp.entity";
 import { CheckOtpDto, SendOtpDto } from "./dto/auth.dto";
 import { randomInt } from "crypto";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
     @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
+    private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async sendOtp(otpDto: SendOtpDto) {
@@ -62,10 +66,49 @@ export class AuthService {
     if (user?.otp?.expires_in < now) throw new UnauthorizedException("Otp Code Has Expired");
 
     if (user?.mobileVerified) await this.userRepository.update({ id: user.id }, { mobileVerified: true });
+    const payload = { mobile, id: user?.id };
 
+    const { accessToken, refreshToken } = this.createTokens(payload);
 
     return {
+      accessToken,
+      refreshToken,
       message: "Login Success",
     };
+  }
+
+  createTokens(payload: { mobile: string; id: number }) {
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get("Jwt.accessTokenSecret"),
+      expiresIn: "30d",
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.get("Jwt.refreshTokenSecret"),
+      expiresIn: "1y",
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async validateToken(token: string) {
+    try {
+      const payload = this.jwtService.verify<{ mobile: string; id: number }>(token, {
+        secret: this.configService.get("Jwt.accessTokenSecret"),
+      });
+
+      if (typeof payload === "object" && payload?.id) {
+        const user = await this.userRepository.findOneBy({ id: payload.id });
+        if (!user) throw new UnauthorizedException("Login To Your Account!");
+        return user;
+      }
+
+      throw new UnauthorizedException("Login To Your Account!");
+    } catch (error) {
+      throw new UnauthorizedException("Login To Your Account!");
+    }
   }
 }

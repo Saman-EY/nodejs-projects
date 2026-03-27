@@ -3,6 +3,7 @@ import { registerAs } from "@nestjs/config";
 export enum ConfigKeys {
   App = "App",
   Db = "Db",
+  Jwt="Jwt"
 }
 
 const AppConfig = registerAs(ConfigKeys.App, () => ({
@@ -16,4 +17,9 @@ const DbConfig = registerAs(ConfigKeys.Db, () => ({
   database: "auth-otp",
 }));
 
-export const configurations = [AppConfig, DbConfig];
+const JwtConfig = registerAs(ConfigKeys.Jwt, () => ({
+  accessTokenSecret: "lkjdfdiutsdkjhfg8787ijhdf8723o5098347yerkfdiu",
+  refreshTokenSecret: "akjhdncvbhjeriughyuyge87092348754klgkfdhfddf",
+}));
+
+export const configurations = [AppConfig, DbConfig, JwtConfig];
