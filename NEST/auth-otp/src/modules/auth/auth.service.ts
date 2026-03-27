@@ -13,8 +13,8 @@ import { CheckOtpDto, SendOtpDto } from "./dto/auth.dto";
 import { randomInt } from "crypto";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
-import { SignUpDto } from "./dto/basic.dto";
-import { genSaltSync, hashSync } from "bcrypt";
+import { LoginDto, SignUpDto } from "./dto/basic.dto";
+import { compareSync, genSaltSync, hashSync } from "bcrypt";
 
 @Injectable()
 export class AuthService {
@@ -44,6 +44,7 @@ export class AuthService {
     otp = await this.otpRepository.save(otp);
     user.otpId = otp.id;
     user = await this.userRepository.save(user);
+    return code;
   }
 
   createTokens(payload: { mobile: string; id: number }) {
@@ -82,11 +83,11 @@ export class AuthService {
   }
 
   async checkExistEmail(email: string) {
-    const user = await this.userRepository.findBy({ email });
+    const user = await this.userRepository.findOneBy({ email });
     if (user) throw new ConflictException("Email Already Exist!");
   }
   async checkExistMobile(mobile: string) {
-    const user = await this.userRepository.findBy({ mobile });
+    const user = await this.userRepository.findOneBy({ mobile });
     if (user) throw new ConflictException("Mobile Number Already Exist!");
   }
 
@@ -99,8 +100,9 @@ export class AuthService {
       user = this.userRepository.create({ mobile });
       user = await this.userRepository.save(user);
     }
-    await this.createOtpForUser(user);
+    const code = await this.createOtpForUser(user);
     return {
+      code,
       message: "Code Send Successfuly",
     };
   }
@@ -138,9 +140,9 @@ export class AuthService {
     await this.checkExistEmail(email);
     await this.checkExistMobile(mobile);
 
-    if (confirmPassword !== password) {
-      throw new BadRequestException("password and confirm password word do not match!");
-    }
+    // if (confirmPassword !== password) {
+    //   throw new BadRequestException("password and confirm password word do not match!");
+    // }
 
     const salt = genSaltSync(10);
     const hashedPassword = hashSync(password, salt);
@@ -157,6 +159,25 @@ export class AuthService {
     await this.userRepository.save(user);
 
     return {
+      message: "user created successfuly!",
+    };
+  }
+
+  async login(loginDto: LoginDto) {
+    const { email, password } = loginDto;
+
+    const user = await this.userRepository.findOneBy({ email });
+    if (!user) throw new UnauthorizedException("email/password Is Incorrect!");
+
+    if (!compareSync(password, user.password)) {
+      throw new UnauthorizedException("email/password Is Incorrect!");
+    }
+
+    const { accessToken, refreshToken } = this.createTokens({ mobile: user.mobile, id: user.id });
+
+    return {
+      accessToken,
+      refreshToken,
       message: "user created successfuly!",
     };
   }

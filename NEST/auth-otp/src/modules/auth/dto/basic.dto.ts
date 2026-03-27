@@ -1,4 +1,5 @@
 import { IsEmail, IsMobilePhone, IsString, Length } from "class-validator";
+import { ConfirmPassword } from "src/common/decorators/password.decorator";
 
 export class SignUpDto {
   @IsString()
@@ -14,6 +15,7 @@ export class SignUpDto {
   @Length(6, 20, { message: "your password is incorrect! (6 - 20 charecters needed)" })
   password: string;
   @IsString()
+  @ConfirmPassword("password") // * custom decorator for validate both passwords
   confirmPassword: string;
 }
 
