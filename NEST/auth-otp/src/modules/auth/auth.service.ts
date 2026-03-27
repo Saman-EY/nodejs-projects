@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "../user/entities/user.entity";
 import { Repository } from "typeorm";
@@ -7,6 +13,8 @@ import { CheckOtpDto, SendOtpDto } from "./dto/auth.dto";
 import { randomInt } from "crypto";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
+import { SignUpDto } from "./dto/basic.dto";
+import { genSaltSync, hashSync } from "bcrypt";
 
 @Injectable()
 export class AuthService {
@@ -17,19 +25,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async sendOtp(otpDto: SendOtpDto) {
-    const { mobile } = otpDto;
-    let user = await this.userRepository.findOne({ where: { mobile } });
-    if (!user) {
-      user = this.userRepository.create({ mobile });
-      user = await this.userRepository.save(user);
-    }
-    await this.createOtpForUser(user);
-    return {
-      message: "Code Send Successfuly",
-    };
-  }
-
+  // METHODS
   async createOtpForUser(user: UserEntity) {
     const expiresIn = new Date(new Date().getTime() + 1000 * 60 * 2); // 2 min
     const code = randomInt(10000, 99999);
@@ -48,33 +44,6 @@ export class AuthService {
     otp = await this.otpRepository.save(otp);
     user.otpId = otp.id;
     user = await this.userRepository.save(user);
-  }
-
-  async checkOtp(otpDto: CheckOtpDto) {
-    const { mobile, code } = otpDto;
-
-    const now = new Date();
-    let user = await this.userRepository.findOne({
-      where: { mobile },
-      relations: {
-        otp: true,
-      },
-    });
-    // validattion
-    if (!user || !user.otp) throw new UnauthorizedException("Account Not Found!");
-    if (user?.otp?.code !== code) throw new UnauthorizedException("Otp Code Is Incorrect");
-    if (user?.otp?.expires_in < now) throw new UnauthorizedException("Otp Code Has Expired");
-
-    if (user?.mobileVerified) await this.userRepository.update({ id: user.id }, { mobileVerified: true });
-    const payload = { mobile, id: user?.id };
-
-    const { accessToken, refreshToken } = this.createTokens(payload);
-
-    return {
-      accessToken,
-      refreshToken,
-      message: "Login Success",
-    };
   }
 
   createTokens(payload: { mobile: string; id: number }) {
@@ -110,5 +79,85 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException("Login To Your Account!");
     }
+  }
+
+  async checkExistEmail(email: string) {
+    const user = await this.userRepository.findBy({ email });
+    if (user) throw new ConflictException("Email Already Exist!");
+  }
+  async checkExistMobile(mobile: string) {
+    const user = await this.userRepository.findBy({ mobile });
+    if (user) throw new ConflictException("Mobile Number Already Exist!");
+  }
+
+  // MAIN SERVICES
+
+  async sendOtp(otpDto: SendOtpDto) {
+    const { mobile } = otpDto;
+    let user = await this.userRepository.findOne({ where: { mobile } });
+    if (!user) {
+      user = this.userRepository.create({ mobile });
+      user = await this.userRepository.save(user);
+    }
+    await this.createOtpForUser(user);
+    return {
+      message: "Code Send Successfuly",
+    };
+  }
+
+  async checkOtp(otpDto: CheckOtpDto) {
+    const { mobile, code } = otpDto;
+
+    const now = new Date();
+    let user = await this.userRepository.findOne({
+      where: { mobile },
+      relations: {
+        otp: true,
+      },
+    });
+    // validattion
+    if (!user || !user.otp) throw new UnauthorizedException("Account Not Found!");
+    if (user?.otp?.code !== code) throw new UnauthorizedException("Otp Code Is Incorrect");
+    if (user?.otp?.expires_in < now) throw new UnauthorizedException("Otp Code Has Expired");
+
+    if (user?.mobileVerified) await this.userRepository.update({ id: user.id }, { mobileVerified: true });
+    const payload = { mobile, id: user?.id };
+
+    const { accessToken, refreshToken } = this.createTokens(payload);
+
+    return {
+      accessToken,
+      refreshToken,
+      message: "Login Success",
+    };
+  }
+
+  async signUp(signupDto: SignUpDto) {
+    const { confirmPassword, email, first_name, last_name, mobile, password } = signupDto;
+
+    await this.checkExistEmail(email);
+    await this.checkExistMobile(mobile);
+
+    if (confirmPassword !== password) {
+      throw new BadRequestException("password and confirm password word do not match!");
+    }
+
+    const salt = genSaltSync(10);
+    const hashedPassword = hashSync(password, salt);
+
+    const user = await this.userRepository.create({
+      email,
+      first_name,
+      last_name,
+      mobile,
+      mobileVerified: false,
+      password: hashedPassword,
+    });
+
+    await this.userRepository.save(user);
+
+    return {
+      message: "user created successfuly!",
+    };
   }
 }
