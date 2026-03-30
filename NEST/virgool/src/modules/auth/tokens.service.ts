@@ -1,5 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { AuthMessage } from "src/common/enums/messages.enum";
 
 @Injectable()
 export class TokenService {
@@ -12,5 +13,13 @@ export class TokenService {
     });
 
     return token;
+  }
+
+  verifyOtpToken(token: string): { userId: number } {
+    try {
+      return this.jwtService.verify(token, { secret: process.env.OTP_TOKEN_SECRET });
+    } catch (error) {
+      throw new UnauthorizedException(AuthMessage.TryLogin);
+    }
   }
 }

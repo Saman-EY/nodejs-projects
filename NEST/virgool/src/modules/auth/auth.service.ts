@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, Scope, UnauthorizedException } from "@nestjs/common";
 import { AuthDto } from "./dto/auth.dto";
 import { AuthMethod, AuthType } from "./enums";
 import { isEmail, isPhoneNumber } from "class-validator";
@@ -9,24 +9,26 @@ import { ProfileEntity } from "../user/entities/profile.entity";
 import { AuthMessage, BadRequestMessage, PublicMessage } from "src/common/enums/messages.enum";
 import { OtpEntity } from "../user/entities/otp.entity";
 import { randomInt } from "crypto";
-import { Response } from "express";
+import type { Request, Response } from "express";
 import { TokenService } from "./tokens.service";
 import { CookieKeys } from "src/common/enums/otherEnums.enum";
+import { REQUEST } from "@nestjs/core";
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST }) // get request
 export class AuthService {
   constructor(
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
     private tokenService: TokenService,
+    @Inject(REQUEST) private request: Request,
   ) {}
 
   ///// SIDE SERVICES
 
   async sendResponse(result, res: Response) {
     const { token, code } = result;
-    res.cookie(CookieKeys.Otp, token, { httpOnly: true });
+    res.cookie(CookieKeys.Otp, token, { httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 20) });
     res.json({
       message: PublicMessage.SendOtp,
       code,
@@ -60,7 +62,19 @@ export class AuthService {
     return user;
   }
 
-  checkOtp() {}
+  async checkOtp(code: string) {
+    const token = this.request.cookies?.[CookieKeys.Otp];
+    if (!token) throw new UnauthorizedException(AuthMessage.ExpiredToken);
+    const { userId } = this.tokenService.verifyOtpToken(token);
+    const otp = await this.otpRepository.findOneBy({ userId });
+    if (!otp) throw new UnauthorizedException(AuthMessage.TryLogin);
+    const now = new Date(); // or Date.now()
+    if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredToken);
+    if (otp.code !== code) throw new UnauthorizedException(AuthMessage.TryLogin);
+    return {
+      message: PublicMessage.loginDone,
+    };
+  }
 
   async saveOtp(userId: number) {
     const code = randomInt(10000, 99999).toString(); // type string
@@ -98,7 +112,6 @@ export class AuthService {
     switch (type) {
       case AuthType.Login: {
         const result = this.login(method, username);
-
         return this.sendResponse(result, res);
       }
       case AuthType.Register: {
@@ -128,6 +141,7 @@ export class AuthService {
       code: otp.code,
     };
   }
+
   async register(method: AuthMethod, username) {
     const validUsername = this.validateUsername(method, username);
     let user: UserEntity = await this.checkExistUser(method, validUsername);

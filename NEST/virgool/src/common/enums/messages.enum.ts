@@ -6,8 +6,11 @@ export enum BadRequestMessage {
 export enum AuthMessage {
   NotFoundAccout = "حساب کاربری یافت نشد",
   AlreadyExistAccount = "حساب کاربری با این مشخصات ثبت شده است",
+  ExpiredToken = "کد یک بار مصرف منقضی شده است",
+  TryLogin = "لطفا دوباره وارد شوید",
 }
 
 export enum PublicMessage {
   SendOtp = "کد otp فرستاده شد",
+  loginDone = "با موفقیت وارد شدید!",
 }
