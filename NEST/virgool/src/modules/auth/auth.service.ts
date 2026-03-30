@@ -6,9 +6,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "../user/entities/user.entity";
 import { Repository } from "typeorm";
 import { ProfileEntity } from "../user/entities/profile.entity";
-import { AuthMessage, BadRequestMessage } from "src/common/enums/messages.enum";
+import { AuthMessage, BadRequestMessage, PublicMessage } from "src/common/enums/messages.enum";
 import { OtpEntity } from "../user/entities/otp.entity";
 import { randomInt } from "crypto";
+import { Response } from "express";
+import { TokenService } from "./tokens.service";
+import { CookieKeys } from "src/common/enums/otherEnums.enum";
 
 @Injectable()
 export class AuthService {
@@ -16,9 +19,20 @@ export class AuthService {
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
+    private tokenService: TokenService,
   ) {}
 
   ///// SIDE SERVICES
+
+  async sendResponse(result, res: Response) {
+    const { token, code } = result;
+    res.cookie(CookieKeys.Otp, token, { httpOnly: true });
+    res.json({
+      message: PublicMessage.SendOtp,
+      code,
+    });
+  }
+
   validateUsername(method: AuthMethod, username) {
     switch (method) {
       case AuthMethod.Email:
@@ -47,6 +61,7 @@ export class AuthService {
   }
 
   checkOtp() {}
+
   async saveOtp(userId: number) {
     const code = randomInt(10000, 99999).toString(); // type string
     const expiresIn = new Date(Date.now() + 1000 * 60 * 20);
@@ -78,13 +93,18 @@ export class AuthService {
   }
 
   ///// MAIN SERVICES
-  userExistence(authDto: AuthDto) {
+  userExistence(authDto: AuthDto, res: Response) {
     const { method, type, username } = authDto;
     switch (type) {
-      case AuthType.Login:
-        return this.login(method, username);
-      case AuthType.Register:
-        return this.register(method, username);
+      case AuthType.Login: {
+        const result = this.login(method, username);
+
+        return this.sendResponse(result, res);
+      }
+      case AuthType.Register: {
+        const result = this.register(method, username);
+        return this.sendResponse(result, res);
+      }
 
       default:
         throw new UnauthorizedException("bad type format");
@@ -97,10 +117,14 @@ export class AuthService {
     if (!user) throw new BadRequestException(AuthMessage.NotFoundAccout);
     const otp = await this.saveOtp(user.id);
 
+    const token = this.tokenService.createOtpToken({ userId: user.id });
+
     // user.otpId = otp.id;
     // await this.userRepository.save(user);
 
     return {
+      message: PublicMessage.SendOtp,
+      token,
       code: otp.code,
     };
   }
@@ -119,11 +143,10 @@ export class AuthService {
     await this.userRepository.save(user);
 
     const otp = await this.saveOtp(user.id);
+    const token = this.tokenService.createOtpToken({ userId: user.id });
 
     // user.otpId = otp.id;
     // await this.userRepository.save(user);
-    return {
-      code: otp.code,
-    };
+    return { message: PublicMessage.SendOtp, token, code: otp.code };
   }
 }
