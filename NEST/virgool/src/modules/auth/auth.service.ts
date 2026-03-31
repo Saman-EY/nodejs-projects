@@ -53,6 +53,13 @@ export class AuthService {
     }
   }
 
+  async validateAccessToken(token: string) {
+    const { userId } = this.tokenService.verifyAccessToken(token);
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) throw new UnauthorizedException(AuthMessage.TryLogin);
+    return user;
+  }
+
   async checkExistUser(method: AuthMethod, username: string) {
     let user;
     if (method === AuthMethod.Email) user = await this.userRepository.findOneBy({ email: username });
@@ -71,7 +78,11 @@ export class AuthService {
     const now = new Date(); // or Date.now()
     if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredToken);
     if (otp.code !== code) throw new UnauthorizedException(AuthMessage.TryLogin);
+
+    const accessToken = await this.tokenService.createAccessToken({ userId });
+
     return {
+      accessToken,
       message: PublicMessage.loginDone,
     };
   }

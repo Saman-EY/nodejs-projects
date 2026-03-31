@@ -22,4 +22,20 @@ export class TokenService {
       throw new UnauthorizedException(AuthMessage.TryLogin);
     }
   }
+  createAccessToken(payload: { userId: number }) {
+    const token = this.jwtService.sign(payload, {
+      secret: process.env.ACCESS_TOKEN_SECRET,
+      expiresIn: "1y",
+    });
+
+    return token;
+  }
+
+  verifyAccessToken(token: string): { userId: number } {
+    try {
+      return this.jwtService.verify(token, { secret: process.env.ACCESS_TOKEN_SECRET });
+    } catch (error) {
+      throw new UnauthorizedException(AuthMessage.TryLogin);
+    }
+  }
 }

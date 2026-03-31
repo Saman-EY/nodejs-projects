@@ -1,10 +1,11 @@
-import { Body, Controller, Post, Res } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { ApiConsumes, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { AuthDto, checkOtpDto } from "./dto/auth.dto";
 import { SwaggerConsumes } from "src/common/enums/swagger.enum";
-import type { Response } from "express";
+import type { Request, Response } from "express";
 import { CookieKeys } from "src/common/enums/otherEnums.enum";
+import { AuthGaurd } from "./guards/auth.guard";
 
 @Controller("auth")
 @ApiTags("Auth")
@@ -20,5 +21,12 @@ export class AuthController {
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   checkOtp(@Body() checkOtpDto: checkOtpDto, @Res() res: Response) {
     return this.authService.checkOtp(checkOtpDto.code);
+  }
+
+  @Get("/check-login")
+  @ApiBearerAuth("Authorization")
+  @UseGuards(AuthGaurd)
+  checkLogin(@Req() req: Request) {
+    return req.user;
   }
 }

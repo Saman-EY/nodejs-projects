@@ -8,6 +8,7 @@ export enum AuthMessage {
   AlreadyExistAccount = "حساب کاربری با این مشخصات ثبت شده است",
   ExpiredToken = "کد یک بار مصرف منقضی شده است",
   TryLogin = "لطفا دوباره وارد شوید",
+  LoginRequired = "ابتدا وارد حساب خود شوید",
 }
 
 export enum PublicMessage {
