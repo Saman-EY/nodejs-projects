@@ -1,4 +1,11 @@
-import { BadRequestException, Inject, Injectable, Scope, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  Scope,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { AuthDto } from "./dto/auth.dto";
 import { AuthMethod, AuthType } from "./enums";
 import { isEmail, isPhoneNumber } from "class-validator";
@@ -61,11 +68,12 @@ export class AuthService {
   }
 
   async checkExistUser(method: AuthMethod, username: string) {
-    let user;
+    let user: UserEntity | null;
     if (method === AuthMethod.Email) user = await this.userRepository.findOneBy({ email: username });
     else if (method === AuthMethod.Phone) user = await this.userRepository.findOneBy({ phone: username });
     else if (method === AuthMethod.Username) user = await this.userRepository.findOneBy({ username });
     else throw new BadRequestException(BadRequestMessage.InvalidLoginData);
+
     return user;
   }
 
@@ -79,7 +87,9 @@ export class AuthService {
     if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredToken);
     if (otp.code !== code) throw new UnauthorizedException(AuthMessage.TryLogin);
 
-    const accessToken = await this.tokenService.createAccessToken({ userId });
+    const accessToken = this.tokenService.createAccessToken({ userId });
+
+    await this.otpRepository.delete(otp.id);
 
     return {
       accessToken,
@@ -89,12 +99,15 @@ export class AuthService {
 
   async saveOtp(userId: number) {
     const code = randomInt(10000, 99999).toString(); // type string
-    const expiresIn = new Date(Date.now() + 1000 * 60 * 20);
+    const expiresIn = new Date(Date.now() + 1000 * 60 * 2);
+    const now = new Date();
     let otp = await this.otpRepository.findOneBy({ userId });
     let isExistOtp = false;
     if (otp) {
       isExistOtp = true;
       otp.code = code;
+      console.log("✅✅",new Date(otp.expiresIn).getTime() , new Date(now).getTime(), otp.expiresIn > now);
+      if (otp.expiresIn > now) throw new BadRequestException("کد قبلی هنوز منقضی نشده است!");
       otp.expiresIn = expiresIn;
     } else {
       otp = this.otpRepository.create({
@@ -118,26 +131,28 @@ export class AuthService {
   }
 
   ///// MAIN SERVICES
-  userExistence(authDto: AuthDto, res: Response) {
+  async userExistence(authDto: AuthDto, res: Response) {
     const { method, type, username } = authDto;
     switch (type) {
       case AuthType.Login: {
-        const result = this.login(method, username);
+        const result = await this.login(method, username);
         return this.sendResponse(result, res);
       }
       case AuthType.Register: {
-        const result = this.register(method, username);
+        const result = await this.register(method, username);
+
         return this.sendResponse(result, res);
       }
 
-      default:
+      default: {
         throw new UnauthorizedException("bad type format");
+      }
     }
   }
 
   async login(method: AuthMethod, username) {
     const validUsername = this.validateUsername(method, username);
-    const user: UserEntity = await this.checkExistUser(method, validUsername);
+    const user: UserEntity | null = await this.checkExistUser(method, validUsername);
     if (!user) throw new BadRequestException(AuthMessage.NotFoundAccout);
     const otp = await this.saveOtp(user.id);
 
@@ -155,16 +170,18 @@ export class AuthService {
 
   async register(method: AuthMethod, username) {
     const validUsername = this.validateUsername(method, username);
-    let user: UserEntity = await this.checkExistUser(method, validUsername);
-    if (user) throw new BadRequestException(AuthMessage.AlreadyExistAccount);
+    let user: UserEntity | null = await this.checkExistUser(method, validUsername);
 
-    if (method === AuthMethod.Username) throw new BadRequestException(BadRequestMessage.InvalidRegisterData);
+    if (user) throw new ConflictException(AuthMessage.AlreadyExistAccount);
 
-    user = await this.userRepository.create({
+    // if (method === AuthMethod.Username) throw new BadRequestException(BadRequestMessage.InvalidRegisterData); // for handling username auto by id
+    user = this.userRepository.create({
       [method]: username,
     });
     user = await this.userRepository.save(user);
-    user.username = `m_${user.id}`;
+    if (method !== AuthMethod.Username) {
+      user.username = `m_${user.id}`;
+    }
     await this.userRepository.save(user);
 
     const otp = await this.saveOtp(user.id);

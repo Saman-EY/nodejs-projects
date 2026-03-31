@@ -5,7 +5,7 @@ import { OtpEntity } from "./otp.entity";
 
 @Entity(EntityNames.User)
 export class UserEntity extends BaseEntity {
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   username: string;
   @Column({ nullable: true })
   password: string;
@@ -15,7 +15,7 @@ export class UserEntity extends BaseEntity {
   email: string;
   @Column({ nullable: true })
   otpId: number;
-  @OneToOne(() => OtpEntity, (otp) => otp.user, { nullable: true })
+  @OneToOne(() => OtpEntity, (otp) => otp.user, { nullable: true, onDelete: "SET NULL" }) 
   @JoinColumn({ name: "otpId" })
   otp: OtpEntity;
   @CreateDateColumn()
