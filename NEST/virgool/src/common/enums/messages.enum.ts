@@ -14,4 +14,5 @@ export enum AuthMessage {
 export enum PublicMessage {
   SendOtp = "کد otp فرستاده شد",
   loginDone = "با موفقیت وارد شدید!",
+  Created = "با موفقیت ایجاد شد",
 }
