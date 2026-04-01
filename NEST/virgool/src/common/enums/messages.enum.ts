@@ -15,8 +15,14 @@ export enum PublicMessage {
   SendOtp = "کد otp فرستاده شد",
   loginDone = "با موفقیت وارد شدید!",
   Created = "با موفقیت ایجاد شد",
+  Deleted = "با موفقیت حذف شد",
+  Updated = "با موفقیت ویرایش شد",
 }
 
 export enum ConflictMessage {
   CategoryTitle = "این عنوان قبلا استفاده شده است!",
+}
+
+export enum NotFoundMessage {
+  NotFound = "موردی پیدا نشد!",
 }

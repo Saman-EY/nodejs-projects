@@ -4,9 +4,10 @@ import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CategoryEntity } from "./entities/category.entity";
 import { Repository } from "typeorm";
-import { ConflictMessage, PublicMessage } from "src/common/enums/messages.enum";
+import { ConflictMessage, NotFoundMessage, PublicMessage } from "src/common/enums/messages.enum";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
+import { NotFoundError } from "rxjs";
 
 @Injectable()
 export class CategoryService {
@@ -43,15 +44,31 @@ export class CategoryService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: number) {
+    const category = await this.categoryRepo.findOneBy({ id });
+    if (!category) throw new NotFoundError(NotFoundMessage.NotFound);
+
+    return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    const { priority, title } = updateCategoryDto;
+    const category = await this.findOne(id);
+
+    if (title) category.title = title;
+    if (priority) category.priority = priority;
+    await this.categoryRepo.save(category);
+
+    return {
+      message: PublicMessage.Updated,
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number) {
+    await this.findOne(id);
+    await this.categoryRepo.delete({ id });
+    return {
+      message: PublicMessage.Deleted,
+    };
   }
 }
