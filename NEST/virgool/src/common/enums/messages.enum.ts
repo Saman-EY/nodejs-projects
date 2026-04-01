@@ -16,3 +16,7 @@ export enum PublicMessage {
   loginDone = "با موفقیت وارد شدید!",
   Created = "با موفقیت ایجاد شد",
 }
+
+export enum ConflictMessage {
+  CategoryTitle = "این عنوان قبلا استفاده شده است!",
+}
