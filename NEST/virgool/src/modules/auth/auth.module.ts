@@ -13,6 +13,6 @@ import { UserEntity } from "../user/entities/user.entity";
   imports: [TypeOrmModule.forFeature([ProfileEntity, UserEntity, OtpEntity])],
   controllers: [AuthController],
   providers: [AuthService, JwtService, TokenService],
-  exports: [AuthService, JwtService, TokenService],
+  exports: [AuthService, JwtService, TokenService, TypeOrmModule],
 })
 export class AuthModule {}
