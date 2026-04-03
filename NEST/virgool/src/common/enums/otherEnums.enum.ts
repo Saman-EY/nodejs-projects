@@ -1,9 +1,11 @@
 export enum CookieKeys {
-  Otp = "otp", 
+  Otp = "otp",
+  EmailOtp = "email-otp",
+  PhoneOtp = "phone-otp",
 }
 
 export enum Gender {
-  man = "مرد", 
-  woman = "زن", 
-  others = "سایر", 
+  man = "مرد",
+  woman = "زن",
+  others = "سایر",
 }

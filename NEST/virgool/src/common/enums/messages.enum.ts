@@ -9,6 +9,7 @@ export enum AuthMessage {
   AlreadyExistAccount = "حساب کاربری با این مشخصات ثبت شده است",
   ExpiredToken = "کد یک بار مصرف منقضی شده است",
   TryLogin = "لطفا دوباره وارد شوید",
+  SomethingWrong = "یک مشکلی پیش آمد",
   LoginRequired = "ابتدا وارد حساب خود شوید",
 }
 
@@ -22,8 +23,14 @@ export enum PublicMessage {
 
 export enum ConflictMessage {
   CategoryTitle = "این عنوان قبلا استفاده شده است!",
+  Email = "این ایمیل قبلا استفاده شده است!",
 }
 
 export enum NotFoundMessage {
   NotFound = "موردی پیدا نشد!",
+}
+
+export enum ValidationMessage {
+  InvalidEmail = "ایمیل معتبر نیست",
+  InvalidPhone = "موبایل معتبر نیست",
 }

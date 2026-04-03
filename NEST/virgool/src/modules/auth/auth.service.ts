@@ -91,6 +91,22 @@ export class AuthService {
 
     await this.otpRepository.delete(otp.id);
 
+    if (otp.method === AuthMethod.Email) {
+      await this.userRepository.update(
+        { id: userId },
+        {
+          verified_email: true,
+        },
+      );
+    } else if (otp.method === AuthMethod.Phone) {
+      await this.userRepository.update(
+        { id: userId },
+        {
+          verified_phone: true,
+        },
+      );
+    }
+
     return {
       accessToken,
       message: PublicMessage.loginDone,
@@ -106,7 +122,7 @@ export class AuthService {
     if (otp) {
       isExistOtp = true;
       otp.code = code;
-      console.log("✅✅",new Date(otp.expiresIn).getTime() , new Date(now).getTime(), otp.expiresIn > now);
+      console.log("✅✅", new Date(otp.expiresIn).getTime(), new Date(now).getTime(), otp.expiresIn > now);
       if (otp.expiresIn > now) throw new BadRequestException("کد قبلی هنوز منقضی نشده است!");
       otp.expiresIn = expiresIn;
     } else {
@@ -185,6 +201,8 @@ export class AuthService {
     await this.userRepository.save(user);
 
     const otp = await this.saveOtp(user.id);
+    otp.method = method;
+    await this.otpRepository.save(otp);
     const token = this.tokenService.createOtpToken({ userId: user.id });
 
     // user.otpId = otp.id;

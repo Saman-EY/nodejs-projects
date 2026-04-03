@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from "@nestjs/common";
+import { ConflictException, Inject, Injectable, Scope } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -11,6 +11,9 @@ import { ProfileDto } from "./dto/profile.dto";
 import { isDate } from "class-validator";
 import { Gender } from "src/common/enums/otherEnums.enum";
 import { TProfileImages } from "src/common/types/types";
+import { ConflictMessage, PublicMessage } from "src/common/enums/messages.enum";
+import { AuthService } from "../auth/auth.service";
+import { TokenService } from "../auth/tokens.service";
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -18,6 +21,8 @@ export class UserService {
     @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepo: Repository<ProfileEntity>,
     @Inject(REQUEST) private req: Request,
+    private authService: AuthService,
+    private tokenService: TokenService,
   ) {}
   async changeProfile(files: TProfileImages, profileDto: ProfileDto) {
     const { id: userId, profileId } = this.req.user!;
@@ -61,10 +66,36 @@ export class UserService {
     profile = await this.profileRepo.save(profile);
 
     if (!profileId) await this.userRepo.update({ id: userId }, { profileId: profile.id });
+
+    return {
+      message: PublicMessage.Updated,
+    };
   }
 
   async profile() {
     const { id } = this.req.user!;
     return this.userRepo.findOne({ where: { id }, relations: ["profile"] });
+  }
+
+  async changeEmail(email: string) {
+    const { id } = this.req.user!;
+
+    const user = await this.userRepo.findOneBy({ email });
+    if (user && user.id !== id) {
+      throw new ConflictException(ConflictMessage.Email);
+    } else if (user && user.id === id) {
+      return {
+        message: PublicMessage.Updated,
+      };
+    }
+
+    user!.new_email = email;
+    const otp = await this.authService.saveOtp(user!.id);
+    const token = this.tokenService.createEmailToken({ email });
+
+    return {
+      code: otp.code,
+      token,
+    };
   }
 }
