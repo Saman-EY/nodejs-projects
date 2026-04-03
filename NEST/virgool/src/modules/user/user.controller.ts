@@ -19,17 +19,19 @@ import { SwaggerConsumes } from "src/common/enums/swagger.enum";
 import { AuthGaurd } from "../auth/guards/auth.guard";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
-import { MulterDestination, MulterFilename } from "src/common/utils/multer.util";
+import { MulterDestination, MulterFilename, multerStorage } from "src/common/utils/multer.util";
+import type { TProfileImages } from "src/common/types/types";
+import { UploadOptionalFiles } from "src/common/decorators/uploadFile.decorator";
 
 @Controller("user")
 @ApiTags("User")
+@UseGuards(AuthGaurd)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Put("/profile")
   @ApiConsumes(SwaggerConsumes.MultiPartData)
   @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGaurd)
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -37,23 +39,21 @@ export class UserController {
         { name: "bg_image", maxCount: 1 },
       ],
       {
-        storage: diskStorage({
-          destination: MulterDestination("user-profile"),
-          filename: MulterFilename,
-        }),
+        storage: multerStorage("user-profile"),
       },
     ),
   )
   changeProfile(
-    @UploadedFiles(
-      new ParseFilePipe({
-        fileIsRequired: false,
-        validators: [],
-      }),
-    ) files,
+    @UploadOptionalFiles() files: TProfileImages,
     @Body()
     profileDto: ProfileDto,
   ) {
-    return this.userService.changeProfile(files,profileDto);
+    return this.userService.changeProfile(files, profileDto);
+  }
+  
+  @ApiBearerAuth("Authorization")
+  @Get("/profile")
+  profile() {
+    return this.userService.profile();
   }
 }
