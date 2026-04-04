@@ -19,8 +19,7 @@ export function MulterDestination(fieldName: string) {
 
 export function MulterFilename(req: Request, file: MulterFile, callback: CallbackFilename): void {
   const ext = extname(file.originalname);
-
-  if (isValidImageFormat(ext)) {
+  if (!isValidImageFormat(ext)) {
     callback(new BadRequestException(BadRequestMessage.InvalidImageFormat), null);
   } else {
     const filename = `${Date.now()}${ext}`;

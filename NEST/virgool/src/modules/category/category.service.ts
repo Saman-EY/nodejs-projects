@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -46,7 +46,7 @@ export class CategoryService {
 
   async findOne(id: number) {
     const category = await this.categoryRepo.findOneBy({ id });
-    if (!category) throw new NotFoundError(NotFoundMessage.NotFound);
+    if (!category) throw new NotFoundException(NotFoundMessage.NotFound);
 
     return category;
   }

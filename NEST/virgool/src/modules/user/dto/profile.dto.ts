@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsEmail, IsEnum, IsMobilePhone, IsOptional, IsPhoneNumber, Length } from "class-validator";
+import { IsEmail, IsEnum, IsMobilePhone, IsOptional, IsPhoneNumber, IsString, Length } from "class-validator";
 import { ValidationMessage } from "src/common/enums/messages.enum";
 import { Gender } from "src/common/enums/otherEnums.enum";
 

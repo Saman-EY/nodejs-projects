@@ -27,6 +27,7 @@ export enum ConflictMessage {
   CategoryTitle = "این عنوان قبلا استفاده شده است!",
   Email = "این ایمیل قبلا استفاده شده است!",
   Phone = "این شماره قبلا استفاده شده است!",
+  Username = "این اسم قبلا استفاده شده است!",
 }
 
 export enum NotFoundMessage {

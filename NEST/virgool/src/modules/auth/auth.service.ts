@@ -89,8 +89,6 @@ export class AuthService {
 
     const accessToken = this.tokenService.createAccessToken({ userId });
 
-    await this.otpRepository.delete(otp.id);
-
     if (otp.method === AuthMethod.Email) {
       await this.userRepository.update(
         { id: userId },
@@ -106,6 +104,8 @@ export class AuthService {
         },
       );
     }
+
+    await this.otpRepository.delete(otp.id); // remove the used otp
 
     return {
       accessToken,

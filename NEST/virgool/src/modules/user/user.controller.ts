@@ -11,16 +11,22 @@ import { UploadOptionalFiles } from "src/common/decorators/uploadFile.decorator"
 import type { Response } from "express";
 import { CookieKeys } from "src/common/enums/otherEnums.enum";
 import { checkOtpDto } from "../auth/dto/auth.dto";
+import { ChangeUsernameDto } from "./dto/update-user.dto";
 
 @Controller("user")
 @ApiTags("User")
+@ApiBearerAuth("Authorization")
 @UseGuards(AuthGaurd)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Get("/profile")
+  profile() {
+    return this.userService.profile();
+  }
+
   @Put("/profile")
   @ApiConsumes(SwaggerConsumes.MultiPartData)
-  @ApiBearerAuth("Authorization")
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -40,13 +46,14 @@ export class UserController {
     return this.userService.changeProfile(files, profileDto);
   }
 
-  @ApiBearerAuth("Authorization")
-  @Get("/profile")
-  profile() {
-    return this.userService.profile();
+  @Patch("/change-username")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+  async changeUsername(@Body() usernameDto: ChangeUsernameDto) {
+    return this.userService.changeUsername(usernameDto.username);
   }
 
   @Patch("/change-email")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async changeEmail(@Body() emailDto: ChangeEmailDto, @Res() res: Response) {
     const { code, message, token } = await this.userService.changeEmail(emailDto.email);
     if (message) return res.json({ message });
@@ -57,6 +64,7 @@ export class UserController {
     });
   }
   @Patch("/change-phone")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async changePhone(@Body() phoneDto: ChangePhoneDto, @Res() res: Response) {
     const { code, message, token } = await this.userService.changePhone(phoneDto.phone);
     if (message) return res.json({ message });
@@ -68,11 +76,13 @@ export class UserController {
   }
 
   @Post("/verify-email")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   verifyEmail(@Body() otpDto: checkOtpDto) {
     return this.userService.verifyEmail(otpDto.code);
   }
 
   @Post("/verify-phone")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   verifyPhone(@Body() otpDto: checkOtpDto) {
     return this.userService.verifyPhone(otpDto.code);
   }

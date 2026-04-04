@@ -39,7 +39,6 @@ export class UserService {
       profileDto.bg_image = image?.path?.slice(7); // remove public form image address
     }
 
-    console.log(files);
     let profile = await this.profileRepo.findOneBy({ userId });
     const { bio, birthday, gender, linkedin_profile, x_profile, nick_name, image_profile, bg_image } = profileDto;
 
@@ -186,6 +185,30 @@ export class UserService {
     };
   }
 
+  async changeUsername(username: string) {
+    const { id } = this.req.user!;
+
+    const user = await this.userRepo.findOneBy({ username });
+    if (user && user.id !== id) {
+      throw new ConflictException(ConflictMessage.Username);
+    } else if (user && user.id === id) {
+      return {
+        message: PublicMessage.Updated,
+      };
+    }
+
+    await this.userRepo.update(
+      { id },
+      {
+        username,
+      },
+    );
+
+    return {
+      message: PublicMessage.Updated,
+    };
+  }
+
   async checkOtp(userId: number, code: string) {
     const otp = await this.otpRepo.findOneBy({ userId });
 
@@ -194,6 +217,7 @@ export class UserService {
     const now = new Date();
     if (otp.expiresIn < now) throw new BadRequestException(AuthMessage.ExpiredCode);
     if (otp.code !== code) throw new BadRequestException(AuthMessage.TryAgain);
+    await this.otpRepo.delete(otp.id);
 
     return otp;
   }
