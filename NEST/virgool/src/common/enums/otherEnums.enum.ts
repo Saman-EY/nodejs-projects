@@ -9,3 +9,9 @@ export enum Gender {
   woman = "زن",
   others = "سایر",
 }
+
+export enum BlogStatus {
+  Published = "published",
+  Draft = "draft",
+  Rejected = "rejected",
+}
