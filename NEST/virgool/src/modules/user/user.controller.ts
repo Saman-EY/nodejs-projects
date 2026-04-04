@@ -1,7 +1,7 @@
-import { Controller, Get, Body, Patch, Put, UseGuards, UseInterceptors, Res } from "@nestjs/common";
+import { Controller, Get, Body, Patch, Put, UseGuards, UseInterceptors, Res, Post } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { ApiBearerAuth, ApiConsumes, ApiTags } from "@nestjs/swagger";
-import { ChangeEmailDto, ProfileDto } from "./dto/profile.dto";
+import { ChangeEmailDto, ChangePhoneDto, ProfileDto } from "./dto/profile.dto";
 import { SwaggerConsumes } from "src/common/enums/swagger.enum";
 import { AuthGaurd } from "../auth/guards/auth.guard";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
@@ -10,6 +10,7 @@ import type { TProfileImages } from "src/common/types/types";
 import { UploadOptionalFiles } from "src/common/decorators/uploadFile.decorator";
 import type { Response } from "express";
 import { CookieKeys } from "src/common/enums/otherEnums.enum";
+import { checkOtpDto } from "../auth/dto/auth.dto";
 
 @Controller("user")
 @ApiTags("User")
@@ -54,5 +55,25 @@ export class UserController {
       code,
       message,
     });
+  }
+  @Patch("/change-phone")
+  async changePhone(@Body() phoneDto: ChangePhoneDto, @Res() res: Response) {
+    const { code, message, token } = await this.userService.changePhone(phoneDto.phone);
+    if (message) return res.json({ message });
+    res.cookie(CookieKeys.PhoneOtp, token, { httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 2) });
+    res.json({
+      code,
+      message,
+    });
+  }
+
+  @Post("/verify-email")
+  verifyEmail(@Body() otpDto: checkOtpDto) {
+    return this.userService.verifyEmail(otpDto.code);
+  }
+
+  @Post("/verify-phone")
+  verifyPhone(@Body() otpDto: checkOtpDto) {
+    return this.userService.verifyPhone(otpDto.code);
   }
 }

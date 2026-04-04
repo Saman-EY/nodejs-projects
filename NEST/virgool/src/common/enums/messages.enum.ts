@@ -7,8 +7,10 @@ export enum BadRequestMessage {
 export enum AuthMessage {
   NotFoundAccout = "حساب کاربری یافت نشد",
   AlreadyExistAccount = "حساب کاربری با این مشخصات ثبت شده است",
-  ExpiredToken = "کد یک بار مصرف منقضی شده است",
+  ExpiredToken = "توکن شما منقضی شده است",
+  ExpiredCode = "کد یک بار مصرف منقضی شده است",
   TryLogin = "لطفا دوباره وارد شوید",
+  TryAgain = "لطفا دوباره تلاش کنید",
   SomethingWrong = "یک مشکلی پیش آمد",
   LoginRequired = "ابتدا وارد حساب خود شوید",
 }
@@ -24,6 +26,7 @@ export enum PublicMessage {
 export enum ConflictMessage {
   CategoryTitle = "این عنوان قبلا استفاده شده است!",
   Email = "این ایمیل قبلا استفاده شده است!",
+  Phone = "این شماره قبلا استفاده شده است!",
 }
 
 export enum NotFoundMessage {

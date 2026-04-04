@@ -15,13 +15,14 @@ export class UserEntity extends BaseEntity {
   @Column({ unique: true, nullable: true })
   email: string;
   @Column({ nullable: true })
-  new_email: string;
+  new_email: string | null;
+  @Column({ nullable: true })
+  new_phone: string | null;
   @Column({ nullable: true, default: false })
-  
   verified_email: boolean;
   @Column({ nullable: true, default: false })
   verified_phone: boolean;
-  
+
   @Column({ nullable: true })
   otpId: number;
   @Column({ nullable: true })

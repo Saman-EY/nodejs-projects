@@ -84,7 +84,7 @@ export class AuthService {
     const otp = await this.otpRepository.findOneBy({ userId });
     if (!otp) throw new UnauthorizedException(AuthMessage.TryLogin);
     const now = new Date(); // or Date.now()
-    if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredToken);
+    if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredCode);
     if (otp.code !== code) throw new UnauthorizedException(AuthMessage.TryLogin);
 
     const accessToken = this.tokenService.createAccessToken({ userId });
@@ -113,23 +113,24 @@ export class AuthService {
     };
   }
 
-  async saveOtp(userId: number) {
+  async saveOtp(userId: number, method: string) {
     const code = randomInt(10000, 99999).toString(); // type string
     const expiresIn = new Date(Date.now() + 1000 * 60 * 2);
     const now = new Date();
     let otp = await this.otpRepository.findOneBy({ userId });
     let isExistOtp = false;
     if (otp) {
+      if (otp.expiresIn > now) throw new BadRequestException("کد قبلی هنوز منقضی نشده است!");
       isExistOtp = true;
       otp.code = code;
-      console.log("✅✅", new Date(otp.expiresIn).getTime(), new Date(now).getTime(), otp.expiresIn > now);
-      if (otp.expiresIn > now) throw new BadRequestException("کد قبلی هنوز منقضی نشده است!");
       otp.expiresIn = expiresIn;
+      otp.method = method;
     } else {
       otp = this.otpRepository.create({
         code,
         expiresIn,
         userId,
+        method,
       });
     }
 
@@ -170,7 +171,7 @@ export class AuthService {
     const validUsername = this.validateUsername(method, username);
     const user: UserEntity | null = await this.checkExistUser(method, validUsername);
     if (!user) throw new BadRequestException(AuthMessage.NotFoundAccout);
-    const otp = await this.saveOtp(user.id);
+    const otp = await this.saveOtp(user.id, method);
 
     const token = this.tokenService.createOtpToken({ userId: user.id });
 
@@ -200,9 +201,8 @@ export class AuthService {
     }
     await this.userRepository.save(user);
 
-    const otp = await this.saveOtp(user.id);
-    otp.method = method;
-    await this.otpRepository.save(otp);
+    const otp = await this.saveOtp(user.id, method);
+
     const token = this.tokenService.createOtpToken({ userId: user.id });
 
     // user.otpId = otp.id;
