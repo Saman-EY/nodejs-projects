@@ -6,6 +6,7 @@ import { ProfileEntity } from "./profile.entity";
 import { BlogEntity } from "src/modules/blog/enities/blog.entity";
 import { BlogLikeEntity } from "src/modules/blog/enities/like.entity";
 import { BlogBookmarkEntity } from "src/modules/blog/enities/bookmark.entity";
+import { BlogCommentEntity } from "src/modules/blog/enities/comment.entity";
 
 @Entity(EntityNames.User)
 export class UserEntity extends BaseEntity {
@@ -25,24 +26,34 @@ export class UserEntity extends BaseEntity {
   verified_email: boolean;
   @Column({ nullable: true, default: false })
   verified_phone: boolean;
+  
   @Column({ nullable: true })
   otpId: number;
   @Column({ nullable: true })
   profileId: number;
+
+  @OneToOne(() => OtpEntity, (otp) => otp.user, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "otpId" })
+  otp: OtpEntity;
+
+  @OneToOne(() => ProfileEntity, (profile) => profile.user, { nullable: true })
+  @JoinColumn()
+  profile: ProfileEntity;
+
+  @OneToMany(() => BlogEntity, (blog) => blog.author)
+  blogs: BlogEntity[];
+
+  @OneToMany(() => BlogLikeEntity, (like) => like.user)
+  likes: BlogLikeEntity[];
+
+  @OneToMany(() => BlogLikeEntity, (bookmark) => bookmark.user)
+  bookmarks: BlogBookmarkEntity[];
+
+  @OneToMany(() => BlogCommentEntity, (comment) => comment.user)
+  comments: BlogCommentEntity[];
+
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()
   updated_at: Date;
-  @OneToOne(() => OtpEntity, (otp) => otp.user, { nullable: true, onDelete: "SET NULL" })
-  @JoinColumn({ name: "otpId" })
-  otp: OtpEntity;
-  @OneToOne(() => ProfileEntity, (profile) => profile.user, { nullable: true })
-  @JoinColumn()
-  profile: ProfileEntity;
-  @OneToMany(() => BlogEntity, (blog) => blog.author)
-  blogs: BlogEntity[];
-  @OneToMany(() => BlogLikeEntity, (like) => like.user)
-  likes: BlogLikeEntity[];
-  @OneToMany(() => BlogLikeEntity, (bookmark) => bookmark.user)
-  bookmarks: BlogBookmarkEntity[];
 }
