@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Scope } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BlogEntity } from "./enities/blog.entity";
 import { FindOptionsWhere, Repository } from "typeorm";
@@ -7,12 +7,13 @@ import { createSlug, randomId } from "src/common/utils/functions.utils";
 import { BlogStatus } from "src/common/enums/otherEnums.enum";
 import { REQUEST } from "@nestjs/core";
 import type { Request } from "express";
-import { BadRequestMessage, PublicMessage } from "src/common/enums/messages.enum";
+import { BadRequestMessage, NotFoundMessage, PublicMessage } from "src/common/enums/messages.enum";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 import { isArray } from "class-validator";
 import { CategoryService } from "../category/category.service";
 import { BlogCategoryEntity } from "./enities/blog-category.entity";
+import { EntityNames } from "src/common/enums/entity.enum";
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -26,6 +27,12 @@ export class BlogService {
   async checkBlogBySlug(slug: string) {
     const blog = await this.blogRepo.findOneBy({ slug });
     return !!blog;
+  }
+
+  async checkBlogExistById(id) {
+    const blog = await this.blogRepo.findOneBy({ id });
+    if (!blog) throw new NotFoundException(NotFoundMessage.NotFound);
+    return blog;
   }
 
   // MAIN SERVICES
@@ -87,41 +94,75 @@ export class BlogService {
 
   async findAll(paginationDto: PaginationDto, filterDto: FilterBlogDto) {
     const { limit, page, skip } = paginationSolver(paginationDto);
-    const { category } = filterDto;
-    let where: FindOptionsWhere<BlogEntity> = {};
+    let { category, search } = filterDto;
+    let where = "";
 
     if (category) {
-      where.categories = {
-        category: {
-          title: category,
-        },
-      };
+      category = category.toLowerCase();
+      if (where.length > 0) where += " AND ";
+      where += "category.title = LOWER(:category)";
     }
 
-    const [blogs, count] = await this.blogRepo.findAndCount({
-      relations: {
-        categories: {
-          category: true,
-        },
-      },
-      where,
-      select: {
-        categories: {
-          id: true,
-          category: {
-            title: true,
-          },
-        },
-      },
-      order: {
-        id: "DESC",
-      },
-      skip,
-      take: limit,
-    });
+    if (search) {
+      if (where.length > 0) where += " AND ";
+      search = `%${search}%`;
+      where += `CONCAT(blog.title, blog.description, blog.content) ILIKE :search`;
+    }
+
+    // ADVANCE SEARCH WITH QUERY BUILDER
+    const [blogs, count] = await this.blogRepo
+      .createQueryBuilder(EntityNames.Blog)
+      .leftJoin("blog.categories", "categories")
+      .leftJoin("categories.category", "category")
+      .addSelect(["categories.id", "category.title"])
+      .where(where, { category, search })
+      .orderBy("blog.id", "DESC")
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    // let where: FindOptionsWhere<BlogEntity> = {};
+    // if (category) {
+    //   where.categories = {
+    //     category: {
+    //       title: category,
+    //     },
+    //   };
+    // }
+
+    // const [blogs, count] = await this.blogRepo.findAndCount({
+    //   relations: {
+    //     categories: {
+    //       category: true,
+    //     },
+    //   },
+    //   where,
+    //   select: {
+    //     categories: {
+    //       id: true,
+    //       category: {
+    //         title: true,
+    //       },
+    //     },
+    //   },
+    //   order: {
+    //     id: "DESC",
+    //   },
+    //   skip,
+    //   take: limit,
+    // });
     return {
       pagination: paginationGenerator(count, limit, page),
       blogs,
+    };
+  }
+
+  async delete(id: number) {
+    await this.checkBlogExistById(id);
+    await this.blogRepo.delete({ id });
+
+    return {
+      message: PublicMessage.Deleted,
     };
   }
 }
