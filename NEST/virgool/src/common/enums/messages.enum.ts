@@ -1,6 +1,7 @@
 export enum BadRequestMessage {
   InvalidLoginData = "اطلاعات وارد شده برای ورود صحیح نمیباشد",
   InvalidRegisterData = "اطلاعات وارد شده برای ثبت نام صحیح نمیباشد",
+  InvalidCategoriesData = "فرمت ارسالی برای دسته بندی نادرست است",
   InvalidImageFormat = "فرمت مجاز برای عکس : png - jpg - jpeg",
 }
 

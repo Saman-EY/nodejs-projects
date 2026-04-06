@@ -21,6 +21,15 @@ export class CategoryService {
     return title;
   }
 
+  async findOneByTitle(title: string) {
+    return await this.categoryRepo.findOneBy({ title });
+  }
+
+  async insertByTitle(title: string) {
+    const category = this.categoryRepo.create({ title });
+    return await this.categoryRepo.save(category);
+  }
+
   // MAIN SERVICES
   async create(createCategoryDto: CreateCategoryDto) {
     let { priority, title } = createCategoryDto;

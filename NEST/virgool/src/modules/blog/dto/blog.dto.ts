@@ -21,8 +21,11 @@ export class CreateBlogDto {
   @IsNotEmpty()
   @Length(100)
   content: string;
+
+  @ApiProperty({ type: "string", isArray: true })
+  categories: string[] | string;
 }
 
 export class FilterBlogDto {
-  search: string;
+  category: string;
 }

@@ -1,9 +1,16 @@
 import { Module } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { BlogController } from './blog.controller';
+import { AuthModule } from '../auth/auth.module';
+import { CategoryService } from '../category/category.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { BlogEntity } from './enities/blog.entity';
+import { CategoryEntity } from '../category/entities/category.entity';
+import { BlogCategoryEntity } from './enities/blog-category.entity';
 
 @Module({
-  controllers: [BlogController],
-  providers: [BlogService],
+  imports: [AuthModule, TypeOrmModule.forFeature([BlogEntity, CategoryEntity, BlogCategoryEntity])],
+  controllers: [ BlogController],
+  providers: [BlogService, CategoryService],
 })
 export class BlogModule {}
