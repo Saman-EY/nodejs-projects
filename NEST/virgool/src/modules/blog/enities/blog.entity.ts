@@ -12,15 +12,19 @@ export class BlogEntity extends BaseEntity {
   @Column()
   title: string;
   @Column()
-  desctription: string;
+  description: string;
   @Column()
   content: string;
   @Column({ nullable: true })
   image: string;
+  @Column({ unique: true })
+  slug: string;
   @Column({ default: BlogStatus.Draft })
   status: string;
   @Column()
-  authorId: string;
+  time_for_study: string;
+  @Column()
+  authorId: number;
   @ManyToOne(() => UserEntity, (user) => user.blogs, { onDelete: "CASCADE" })
   author: UserEntity;
 
