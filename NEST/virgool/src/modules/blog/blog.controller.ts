@@ -1,21 +1,34 @@
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
 import { BlogService } from "./blog.service";
 import { CreateBlogDto } from "./dto/blog.dto";
 import { ApiBearerAuth, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { SwaggerConsumes } from "src/common/enums/swagger.enum";
 import { AuthGaurd } from "../auth/guards/auth.guard";
+import { Pagination } from "src/common/decorators/pagination.decorator";
+import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { SkipAuth } from "src/common/decorators/skip-auth.decorator";
 
 @Controller("blog")
 @ApiTags("Blog")
-
+@ApiBearerAuth("Authorization")
+@UseGuards(AuthGaurd)
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @Post()
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
-  @ApiBearerAuth("Authorization")
-  @UseGuards(AuthGaurd)
   createBlog(@Body() blogDto: CreateBlogDto) {
     return this.blogService.create(blogDto);
+  }
+
+  @Get("/my-blogs")
+  myblogs() {
+    return this.blogService.getMyBlogs();
+  }
+  @Get("")
+  @Pagination()
+  @SkipAuth()
+  find(@Query() paginationDto: PaginationDto) {
+    return this.blogService.findAll(paginationDto);
   }
 }
