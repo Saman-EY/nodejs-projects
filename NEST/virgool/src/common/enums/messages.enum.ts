@@ -22,6 +22,8 @@ export enum PublicMessage {
   Created = "با موفقیت ایجاد شد",
   Deleted = "با موفقیت حذف شد",
   Updated = "با موفقیت ویرایش شد",
+  Like = "با موفقیت لایک شد",
+  UnLike = "با موفقیت لایک برداشته شد",
 }
 
 export enum ConflictMessage {
