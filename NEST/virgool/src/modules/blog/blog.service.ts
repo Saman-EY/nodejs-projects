@@ -1,4 +1,12 @@
-import { BadGatewayException, BadRequestException, Inject, Injectable, NotFoundException, Scope } from "@nestjs/common";
+import {
+  BadGatewayException,
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  Scope,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BlogEntity } from "./enities/blog.entity";
 import { FindOptionsWhere, Repository } from "typeorm";
@@ -7,7 +15,7 @@ import { createSlug, randomId } from "src/common/utils/functions.utils";
 import { BlogStatus } from "src/common/enums/otherEnums.enum";
 import { REQUEST } from "@nestjs/core";
 import type { Request } from "express";
-import { BadRequestMessage, NotFoundMessage, PublicMessage } from "src/common/enums/messages.enum";
+import { AuthMessage, BadRequestMessage, NotFoundMessage, PublicMessage } from "src/common/enums/messages.enum";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 import { isArray } from "class-validator";
@@ -176,9 +184,13 @@ export class BlogService {
       blogs,
     };
   }
+  // with ownership
 
   async delete(id: number) {
-    await this.checkBlogExistById(id);
+    const user = this.request.user!; // for checking blog ownership
+    const blog = await this.checkBlogExistById(id);
+    if (blog.authorId !== user.id) throw new UnauthorizedException(AuthMessage.Permission);
+
     await this.blogRepo.delete({ id });
 
     return {
@@ -186,11 +198,12 @@ export class BlogService {
     };
   }
 
+  // with ownership
   async update(id: number, blogDto: UpdateBlogDto) {
-    const user = this.request.user!;
+    const user = this.request.user!; // for checking blog ownership
     let { title, slug, content, description, image, time_for_study, categories } = blogDto;
-
     const blog = await this.checkBlogExistById(id);
+    if (blog.authorId !== user.id) throw new UnauthorizedException(AuthMessage.Permission);
 
     if (!isArray(categories) && typeof categories === "string") {
       categories = categories.split(",");

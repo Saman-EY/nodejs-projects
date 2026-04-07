@@ -14,6 +14,7 @@ export enum AuthMessage {
   TryAgain = "لطفا دوباره تلاش کنید",
   SomethingWrong = "یک مشکلی پیش آمد",
   LoginRequired = "ابتدا وارد حساب خود شوید",
+  Permission = "شما اجازه انجام این کار را ندارید!",
 }
 
 export enum PublicMessage {
