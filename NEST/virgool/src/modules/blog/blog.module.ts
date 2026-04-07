@@ -7,10 +7,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogEntity } from './enities/blog.entity';
 import { CategoryEntity } from '../category/entities/category.entity';
 import { BlogCategoryEntity } from './enities/blog-category.entity';
+import { BlogLikeEntity } from './enities/like.entity';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([BlogEntity, CategoryEntity, BlogCategoryEntity])],
-  controllers: [ BlogController],
+  imports: [AuthModule, TypeOrmModule.forFeature([BlogEntity, CategoryEntity, BlogCategoryEntity, BlogLikeEntity])],
+  controllers: [BlogController],
   providers: [BlogService, CategoryService],
 })
 export class BlogModule {}

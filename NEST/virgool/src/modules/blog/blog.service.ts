@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from "@nestjs/common";
+import { BadGatewayException, BadRequestException, Inject, Injectable, NotFoundException, Scope } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BlogEntity } from "./enities/blog.entity";
 import { FindOptionsWhere, Repository } from "typeorm";
@@ -31,7 +31,7 @@ export class BlogService {
     return blog;
   }
 
-  async checkBlogExistById(id) {
+  async checkBlogExistById(id: number) {
     const blog = await this.blogRepo.findOneBy({ id });
     if (!blog) throw new NotFoundException(NotFoundMessage.NotFound);
     return blog;
@@ -87,6 +87,24 @@ export class BlogService {
     const { id } = this.request.user!;
     const blogs = await this.blogRepo.find({
       where: { authorId: id },
+      // relations: ["likes", "categories", "bookmarks", "comments"],
+      relations: {
+        likes: true,
+        categories: {
+          category: true,
+        },
+        bookmarks: true,
+        comments: true,
+      },
+      select: {
+        categories: {
+          id: true,
+          category: {
+            title: true,
+            priority: true,
+          },
+        },
+      },
       order: {
         id: "DESC",
       },

@@ -1,4 +1,10 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -74,10 +80,24 @@ export class CategoryService {
   }
 
   async remove(id: number) {
-    await this.findOne(id);
-    await this.categoryRepo.delete({ id });
-    return {
-      message: PublicMessage.Deleted,
-    };
+    try {
+      await this.findOne(id);
+      await this.categoryRepo.delete({ id });
+      return {
+        message: PublicMessage.Deleted,
+      };
+    } catch (error) {
+      if (
+        error.code === "ER_ROW_IS_REFERENCED_2" ||
+        error.message.includes("violates foreign key constraint") ||
+        error?.detail.includes("referenced")
+      ) {
+        throw new BadRequestException(
+          `Cannot delete category because it is still in use by one or more blogs. Please disassociate it from blogs first.`,
+        );
+      }
+
+      throw new InternalServerErrorException(`An unexpected error occurred while deleting category.`);
+    }
   }
 }
