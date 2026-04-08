@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
-import { BlogService } from "./blog.service";
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from "./dto/blog.dto";
+import { BlogService } from "../services/blog.service";
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from "../dto/blog.dto";
 import { ApiBearerAuth, ApiConsumes, ApiNotFoundResponse, ApiTags } from "@nestjs/swagger";
 import { SwaggerConsumes } from "src/common/enums/swagger.enum";
-import { AuthGaurd } from "../auth/guards/auth.guard";
+import { AuthGaurd } from "../../auth/guards/auth.guard";
 import { Pagination } from "src/common/decorators/pagination.decorator";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { SkipAuth } from "src/common/decorators/skip-auth.decorator";
@@ -49,5 +49,10 @@ export class BlogController {
   @Put("/like/:id")
   likeToggle(@Param("id", ParseIntPipe) id: number) {
     return this.blogService.likeToggle(id);
+  }
+
+  @Put("/bookmark/:id")
+  bookmaarkToggle(@Param("id", ParseIntPipe) id: number) {
+    return this.blogService.bookmarkToggle(id);
   }
 }
