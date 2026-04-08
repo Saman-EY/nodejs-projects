@@ -3,6 +3,8 @@ export enum BadRequestMessage {
   InvalidRegisterData = "اطلاعات وارد شده برای ثبت نام صحیح نمیباشد",
   InvalidCategoriesData = "فرمت ارسالی برای دسته بندی نادرست است",
   InvalidImageFormat = "فرمت مجاز برای عکس : png - jpg - jpeg",
+  AlreadyAccepted = "کامنت قبلا تایید شده است",
+  AlreadyRejected = "کامنت قبلا رد شده است",
 }
 
 export enum AuthMessage {
