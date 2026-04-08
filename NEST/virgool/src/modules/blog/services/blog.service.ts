@@ -24,6 +24,7 @@ import { BlogCategoryEntity } from "../enities/blog-category.entity";
 import { EntityNames } from "src/common/enums/entity.enum";
 import { BlogLikeEntity } from "../enities/like.entity";
 import { BlogBookmarkEntity } from "../enities/bookmark.entity";
+import { CommentService } from "./comment.service";
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -34,6 +35,7 @@ export class BlogService {
     @InjectRepository(BlogBookmarkEntity) private blogBookmarkRepo: Repository<BlogBookmarkEntity>,
     @Inject(REQUEST) private request: Request,
     private categoryService: CategoryService,
+    private commentService: CommentService,
   ) {}
   // SIDE SERVICES
   async checkBlogBySlug(slug: string) {
@@ -193,8 +195,8 @@ export class BlogService {
       blogs,
     };
   }
-  // with ownership
 
+  // with ownership
   async delete(id: number) {
     const user = this.request.user!; // for checking blog ownership
     const blog = await this.checkBlogExistById(id);
@@ -303,6 +305,34 @@ export class BlogService {
 
     return {
       message,
+    };
+  }
+
+  async findOneBySlug(slug: string, paginationDto: PaginationDto) {
+    const userId = this.request?.user?.id;
+    const blog = await this.blogRepo
+      .createQueryBuilder(EntityNames.Blog)
+      .leftJoin("blog.categories", "categories")
+      .leftJoin("categories.category", "category")
+      .leftJoin("blog.author", "author")
+      .leftJoin("author", "profile")
+      .addSelect(["categories.id", "category.title", "author.username", "author.id", "profile.nick_name"])
+      .where({ slug })
+      .loadRelationCountAndMap("blog.likes", "blog.likes")
+      .loadRelationCountAndMap("blog.bookmarks", "blog.bookmarks")
+      // .leftJoinAndSelect("blog.comments", "comments", "comments.accepted = :accepted", { accepted: true })
+      .getOne();
+
+    if (!blog) throw new NotFoundException(NotFoundMessage.NotFound);
+    const comments = await this.commentService.findCommentsOfBlog(blog.id, paginationDto);
+    const isLiked = !!(await this.blogLikeRepo.findOneBy({ userId, blogId: blog.id }));
+    const isBookmarked = !!(await this.blogLikeRepo.findOneBy({ userId, blogId: blog.id }));
+
+    return {
+      isLiked,
+      isBookmarked,
+      blog,
+      comments,
     };
   }
 }
