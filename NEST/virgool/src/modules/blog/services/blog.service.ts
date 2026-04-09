@@ -325,8 +325,13 @@ export class BlogService {
 
     if (!blog) throw new NotFoundException(NotFoundMessage.NotFound);
     const comments = await this.commentService.findCommentsOfBlog(blog.id, paginationDto);
-    const isLiked = !!(await this.blogLikeRepo.findOneBy({ userId, blogId: blog.id }));
-    const isBookmarked = !!(await this.blogLikeRepo.findOneBy({ userId, blogId: blog.id }));
+    let isLiked = false;
+    let isBookmarked = false;
+
+    if (userId && !isNaN(userId) && userId > 0) {
+      isLiked = !!(await this.blogLikeRepo.findOneBy({ userId, blogId: blog.id }));
+      isBookmarked = !!(await this.blogLikeRepo.findOneBy({ userId, blogId: blog.id }));
+    }
 
     return {
       isLiked,
