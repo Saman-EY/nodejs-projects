@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CategoryModule } from './modules/category/category.module';
 import { BlogModule } from './modules/blog/blog.module';
 import { ImageModule } from './modules/image/image.module';
+import { CustomHttpModule } from "./modules/http/http.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ImageModule } from './modules/image/image.module';
     CategoryModule,
     BlogModule,
     ImageModule,
+    CustomHttpModule,
   ],
   controllers: [],
   providers: [],

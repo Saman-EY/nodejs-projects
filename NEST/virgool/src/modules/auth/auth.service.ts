@@ -20,6 +20,7 @@ import type { Request, Response } from "express";
 import { TokenService } from "./tokens.service";
 import { CookieKeys } from "src/common/enums/otherEnums.enum";
 import { REQUEST } from "@nestjs/core";
+import { KavenegarService } from "../http/kavenegar.service";
 
 @Injectable({ scope: Scope.REQUEST }) // get request
 export class AuthService {
@@ -28,17 +29,18 @@ export class AuthService {
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
     private tokenService: TokenService,
+    private kavenegarService: KavenegarService,
     @Inject(REQUEST) private request: Request,
   ) {}
 
   ///// SIDE SERVICES
 
   async sendResponse(result, res: Response) {
-    const { token, code } = result;
+    const { token } = result;
     res.cookie(CookieKeys.Otp, token, { httpOnly: true, expires: new Date(Date.now() + 1000 * 60 * 20) });
     res.json({
       message: PublicMessage.SendOtp,
-      code,
+      // code,
     });
   }
 
@@ -147,17 +149,26 @@ export class AuthService {
     return otp;
   }
 
+  async sendOtp(method: AuthMethod, username: string, code: string) {
+    if (method === AuthMethod.Email) {
+      // send mail
+    } else if (method === AuthMethod.Phone) {
+      await this.kavenegarService.sendVerificationSms(username, code);
+    }
+  }
+
   ///// MAIN SERVICES
   async userExistence(authDto: AuthDto, res: Response) {
     const { method, type, username } = authDto;
     switch (type) {
       case AuthType.Login: {
         const result = await this.login(method, username);
+        await this.sendOtp(method, username, result.code);
         return this.sendResponse(result, res);
       }
       case AuthType.Register: {
         const result = await this.register(method, username);
-
+        await this.sendOtp(method, username, result.code);
         return this.sendResponse(result, res);
       }
 

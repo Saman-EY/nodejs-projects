@@ -15,3 +15,7 @@ export enum BlogStatus {
   Draft = "draft",
   Rejected = "rejected",
 }
+
+export enum SmsTemplate {
+  Verify = "verify",
+}
