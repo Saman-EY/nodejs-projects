@@ -141,13 +141,13 @@ export class BlogService {
       where += `CONCAT(blog.title, blog.description, blog.content) ILIKE :search`;
     }
 
-    // ADVANCE SEARCH WITH QUERY BUILDER
+    // *** ADVANCE SEARCH WITH QUERY BUILDER
     const [blogs, count] = await this.blogRepo
       .createQueryBuilder(EntityNames.Blog)
       .leftJoin("blog.categories", "categories")
       .leftJoin("categories.category", "category")
       .leftJoin("blog.author", "author")
-      .leftJoin("author", "profile")
+      .leftJoin("author.profile", "profile")
       .addSelect(["categories.id", "category.title", "author.username", "author.id", "profile.nick_name"])
       .where(where, { category, search })
       .loadRelationCountAndMap("blog.likes", "blog.likes")
@@ -159,6 +159,51 @@ export class BlogService {
       .skip(skip)
       .take(limit)
       .getManyAndCount();
+
+    ///////////////////////////////////////////////////// OR ////////////////////////////////////////////////////
+    //     const qb = this.blogRepo
+    //   .createQueryBuilder("blog")
+    //   .leftJoin("blog.categories", "categories")
+    //   .leftJoin("categories.category", "category")
+    //   .leftJoin("blog.author", "author")
+    //   .leftJoin("author", "profile")
+    //   .addSelect([
+    //     "categories.id",
+    //     "category.title",
+    //     "author.username",
+    //     "author.id",
+    //     "profile.nick_name",
+    //   ])
+    //   .loadRelationCountAndMap("blog.likes", "blog.likes")
+    //   .loadRelationCountAndMap("blog.bookmarks", "blog.bookmarks")
+    //   .loadRelationCountAndMap(
+    //     "blog.comments",
+    //     "blog.comments",
+    //     "cmt",
+    //     qb => qb.where("cmt.accepted = :accepted", { accepted: true })
+    //   )
+    //   .orderBy("blog.id", "DESC")
+    //   .skip(skip)
+    //   .take(limit);
+
+    // if (category) {
+    //   qb.andWhere("LOWER(category.title) = :category", {
+    //     category: category.toLowerCase(),
+    //   });
+    // }
+
+    // if (search) {
+    //   qb.andWhere(
+    //     "CONCAT(blog.title, blog.description, blog.content) ILIKE :search",
+    //     { search: `%${search}%` }
+    //   );
+    // }
+
+    // const [blogs, count] = await qb.getManyAndCount();
+
+    ///////////////////////////////////////////////////// OR ENDS ////////////////////////////////////////////////////
+
+    // *** BASIC
 
     // let where: FindOptionsWhere<BlogEntity> = {};
     // if (category) {
@@ -190,6 +235,7 @@ export class BlogService {
     //   skip,
     //   take: limit,
     // });
+
     return {
       pagination: paginationGenerator(count, limit, page),
       blogs,
@@ -315,7 +361,7 @@ export class BlogService {
       .leftJoin("blog.categories", "categories")
       .leftJoin("categories.category", "category")
       .leftJoin("blog.author", "author")
-      .leftJoin("author", "profile")
+      .leftJoin("author.profile", "profile")
       .addSelect(["categories.id", "category.title", "author.username", "author.id", "profile.nick_name"])
       .where({ slug })
       .loadRelationCountAndMap("blog.likes", "blog.likes")
@@ -330,7 +376,7 @@ export class BlogService {
 
     if (userId && !isNaN(userId) && userId > 0) {
       isLiked = !!(await this.blogLikeRepo.findOneBy({ userId, blogId: blog.id }));
-      isBookmarked = !!(await this.blogLikeRepo.findOneBy({ userId, blogId: blog.id }));
+      isBookmarked = !!(await this.blogBookmarkRepo.findOneBy({ userId, blogId: blog.id }));
     }
 
     return {

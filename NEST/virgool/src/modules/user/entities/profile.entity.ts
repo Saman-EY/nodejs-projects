@@ -1,6 +1,6 @@
 import { BaseEntity } from "src/common/abstracts/base.entity";
 import { EntityNames } from "src/common/enums/entity.enum";
-import { Column, CreateDateColumn, Entity, OneToOne, UpdateDateColumn } from "typeorm";
+import { AfterLoad, Column, CreateDateColumn, Entity, OneToOne, UpdateDateColumn } from "typeorm";
 import { UserEntity } from "./user.entity";
 
 @Entity(EntityNames.Profile)
@@ -25,4 +25,10 @@ export class ProfileEntity extends BaseEntity {
   userId: number;
   @OneToOne(() => UserEntity, (user) => user.profile, { onDelete: "CASCADE" })
   user: UserEntity;
+
+  @AfterLoad()
+  map() {
+    this.bg_image = `http://localhost:3000/${this.bg_image.replace(/\\/g, "/")}`; // for converting \\uploads to / in return
+    // this.image_profile = `http://localhost:3000/${this.image_profile.replace(/\\/g, "/")}`; // for converting \\uploads to / in return
+  }
 }
