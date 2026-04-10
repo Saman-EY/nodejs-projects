@@ -9,16 +9,25 @@ import { multerStorage } from "src/common/utils/multer.util";
 import type { TProfileImages } from "src/common/types/types";
 import { UploadOptionalFiles } from "src/common/decorators/uploadFile.decorator";
 import type { Response } from "express";
-import { CookieKeys } from "src/common/enums/otherEnums.enum";
+import { CookieKeys, Roles } from "src/common/enums/otherEnums.enum";
 import { checkOtpDto } from "../auth/dto/auth.dto";
 import { ChangeUsernameDto } from "./dto/update-user.dto";
+import { AuthDecorator } from "src/common/decorators/auth.decorator";
+import { CanAccess } from "src/common/decorators/role.decorator";
 
 @Controller("user")
 @ApiTags("User")
-@ApiBearerAuth("Authorization")
-@UseGuards(AuthGaurd)
+// @ApiBearerAuth("Authorization")
+// @UseGuards(AuthGaurd)
+@AuthDecorator() // includes auth guard and role guard
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Get("/all-users")
+  @CanAccess(Roles.Admin) // only admin
+  find() {
+    return this.userService.findAll();
+  }
 
   @Get("/profile")
   profile() {

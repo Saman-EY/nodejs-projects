@@ -27,6 +27,11 @@ export class UserService {
     private authService: AuthService,
     private tokenService: TokenService,
   ) {}
+
+  async findAll() {
+    return await this.userRepo.find({});
+  }
+
   async changeProfile(files: TProfileImages, profileDto: ProfileDto) {
     const { id: userId, profileId } = this.req.user!;
 

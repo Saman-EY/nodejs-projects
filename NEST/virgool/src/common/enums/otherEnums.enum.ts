@@ -19,3 +19,8 @@ export enum BlogStatus {
 export enum SmsTemplate {
   Verify = "verify",
 }
+
+export enum Roles {
+  Admin = "admin",
+  User = "user",
+}

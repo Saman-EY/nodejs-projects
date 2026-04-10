@@ -46,3 +46,6 @@ export enum ValidationMessage {
   InvalidEmail = "ایمیل معتبر نیست",
   InvalidPhone = "موبایل معتبر نیست",
 }
+export enum ForbiddenMessage {
+  Forbidden = "عدم دسترسی",
+}
