@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Inject, Injectable, Scope } from "@nestjs/common";
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException, Scope } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -16,6 +16,8 @@ import { AuthService } from "../auth/auth.service";
 import { TokenService } from "../auth/tokens.service";
 import { OtpEntity } from "./entities/otp.entity";
 import { AuthMethod } from "../auth/enums";
+import { FollowEntity } from "./entities/follow.entity";
+import { EntityNames } from "src/common/enums/entity.enum";
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -23,6 +25,7 @@ export class UserService {
     @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepo: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity) private otpRepo: Repository<OtpEntity>,
+    @InjectRepository(FollowEntity) private followRepo: Repository<FollowEntity>,
     @Inject(REQUEST) private req: Request,
     private authService: AuthService,
     private tokenService: TokenService,
@@ -30,6 +33,25 @@ export class UserService {
 
   async findAll() {
     return await this.userRepo.find({});
+  }
+
+  async followToggle(followingId: number) {
+    const { id: userId } = this.req.user!;
+    const followItem = await this.userRepo.findOneBy({ id: followingId });
+    if (!followItem) throw new NotFoundException(NotFoundMessage.NotFound);
+    const isFollowing = await this.followRepo.findOneBy({ followerId: userId, followingId });
+
+    let message = PublicMessage.Followed;
+    if (isFollowing) {
+      await this.followRepo.remove(isFollowing);
+      message = PublicMessage.UnFollowed;
+    } else {
+      await this.followRepo.insert({ followerId: userId, followingId });
+    }
+
+    return {
+      message,
+    };
   }
 
   async changeProfile(files: TProfileImages, profileDto: ProfileDto) {
@@ -81,7 +103,13 @@ export class UserService {
 
   async profile() {
     const { id } = this.req.user!;
-    return this.userRepo.findOne({ where: { id }, relations: ["profile"] });
+    return this.userRepo
+      .createQueryBuilder(EntityNames.User)
+      .where({ id })
+      .leftJoinAndSelect("user.profile", "profile")
+      .loadRelationCountAndMap("user.followers", "user.followers")
+      .loadRelationCountAndMap("user.following", "user.following")
+      .getOne();
   }
 
   async changeEmail(email: string) {

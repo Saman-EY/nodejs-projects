@@ -1,6 +1,18 @@
-import { Controller, Get, Body, Patch, Put, UseGuards, UseInterceptors, Res, Post } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Put,
+  UseGuards,
+  UseInterceptors,
+  Res,
+  Post,
+  Param,
+  ParseIntPipe,
+} from "@nestjs/common";
 import { UserService } from "./user.service";
-import { ApiBearerAuth, ApiConsumes, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from "@nestjs/swagger";
 import { ChangeEmailDto, ChangePhoneDto, ProfileDto } from "./dto/profile.dto";
 import { SwaggerConsumes } from "src/common/enums/swagger.enum";
 import { AuthGaurd } from "../auth/guards/auth.guard";
@@ -32,6 +44,12 @@ export class UserController {
   @Get("/profile")
   profile() {
     return this.userService.profile();
+  }
+
+  @Get("/follow/:userId")
+  @ApiParam({ name: "userId" })
+  follow(@Param("userId", ParseIntPipe) userId: number) {
+    return this.userService.followToggle(userId);
   }
 
   @Put("/profile")

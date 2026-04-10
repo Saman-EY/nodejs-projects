@@ -9,6 +9,7 @@ import { BlogBookmarkEntity } from "src/modules/blog/enities/bookmark.entity";
 import { BlogCommentEntity } from "src/modules/blog/enities/comment.entity";
 import { ImageEntity } from "src/modules/image/entities/image.entity";
 import { Roles } from "src/common/enums/otherEnums.enum";
+import { FollowEntity } from "./follow.entity";
 
 @Entity(EntityNames.User)
 export class UserEntity extends BaseEntity {
@@ -49,6 +50,11 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => ImageEntity, (image) => image.user)
   images: ImageEntity[];
+
+  @OneToMany(() => FollowEntity, (follow) => follow.following)
+  followers: FollowEntity[];
+  @OneToMany(() => FollowEntity, (follow) => follow.followers)
+  following: FollowEntity[];
 
   @OneToMany(() => BlogLikeEntity, (like) => like.user)
   likes: BlogLikeEntity[];
