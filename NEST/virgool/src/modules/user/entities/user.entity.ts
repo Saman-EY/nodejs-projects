@@ -53,7 +53,7 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => FollowEntity, (follow) => follow.following)
   followers: FollowEntity[];
-  @OneToMany(() => FollowEntity, (follow) => follow.followers)
+  @OneToMany(() => FollowEntity, (follow) => follow.follower)
   following: FollowEntity[];
 
   @OneToMany(() => BlogLikeEntity, (like) => like.user)

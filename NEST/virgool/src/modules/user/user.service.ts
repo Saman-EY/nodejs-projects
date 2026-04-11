@@ -18,6 +18,8 @@ import { OtpEntity } from "./entities/otp.entity";
 import { AuthMethod } from "../auth/enums";
 import { FollowEntity } from "./entities/follow.entity";
 import { EntityNames } from "src/common/enums/entity.enum";
+import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -51,6 +53,77 @@ export class UserService {
 
     return {
       message,
+    };
+  }
+
+  async followingList(paginationDto: PaginationDto) {
+    const { id: userId } = this.req.user!;
+    const { limit, page, skip } = paginationSolver(paginationDto);
+    const [following, count] = await this.followRepo.findAndCount({
+      where: {
+        followerId: userId,
+      },
+      relations: {
+        following: {
+          profile: true,
+        },
+      },
+      select: {
+        following: {
+          id: true,
+          username: true,
+          profile: {
+            id: true,
+            nick_name: true,
+            bio: true,
+            bg_image: true,
+            image_profile: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      pagination: paginationGenerator(count, limit, page),
+      following,
+    };
+  }
+  async followersList(paginationDto: PaginationDto) {
+    const { id: userId } = this.req.user!;
+
+    const { limit, page, skip } = paginationSolver(paginationDto);
+
+    const [followers, count] = await this.followRepo.findAndCount({
+      where: {
+        followingId: userId,
+      },
+      relations: {
+        follower: {
+          profile: true,
+        },
+      },
+      select: {
+        follower: {
+          id: true,
+          username: true,
+          profile: {
+            id: true,
+            nick_name: true,
+            bio: true,
+            bg_image: true,
+            image_profile: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      pagination: paginationGenerator(count, limit, page),
+      followers,
     };
   }
 

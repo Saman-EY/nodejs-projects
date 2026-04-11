@@ -10,6 +10,7 @@ import {
   Post,
   Param,
   ParseIntPipe,
+  Query,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from "@nestjs/swagger";
@@ -26,6 +27,8 @@ import { checkOtpDto } from "../auth/dto/auth.dto";
 import { ChangeUsernameDto } from "./dto/update-user.dto";
 import { AuthDecorator } from "src/common/decorators/auth.decorator";
 import { CanAccess } from "src/common/decorators/role.decorator";
+import { Pagination } from "src/common/decorators/pagination.decorator";
+import { PaginationDto } from "src/common/dtos/pagination.dto";
 
 @Controller("user")
 @ApiTags("User")
@@ -50,6 +53,18 @@ export class UserController {
   @ApiParam({ name: "userId" })
   follow(@Param("userId", ParseIntPipe) userId: number) {
     return this.userService.followToggle(userId);
+  }
+
+  @Get("/followings")
+  @Pagination()
+  followingList(@Query() paginationDto: PaginationDto) {
+    return this.userService.followingList(paginationDto);
+  }
+
+  @Get("/followers")
+  @Pagination()
+  followersList(@Query() paginationDto: PaginationDto) {
+    return this.userService.followersList(paginationDto);
   }
 
   @Put("/profile")

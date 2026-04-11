@@ -12,7 +12,7 @@ export class FollowEntity extends BaseEntity {
   @ManyToOne(() => UserEntity, (user) => user.followers, { onDelete: "CASCADE" })
   following: UserEntity;
   @ManyToOne(() => UserEntity, (user) => user.following, { onDelete: "CASCADE" })
-  followers: UserEntity;
+  follower: UserEntity;
 
   @CreateDateColumn()
   created_at: Date;
