@@ -29,6 +29,7 @@ import { AuthDecorator } from "src/common/decorators/auth.decorator";
 import { CanAccess } from "src/common/decorators/role.decorator";
 import { Pagination } from "src/common/decorators/pagination.decorator";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { BanDto } from "./dto/create-user.dto";
 
 @Controller("user")
 @ApiTags("User")
@@ -86,6 +87,12 @@ export class UserController {
     profileDto: ProfileDto,
   ) {
     return this.userService.changeProfile(files, profileDto);
+  }
+
+  @Put("/ban")
+  @CanAccess(Roles.Admin)
+  banToggle(@Body() banDto: BanDto) {
+    return this.userService.banToggle(banDto);
   }
 
   @Patch("/change-username")

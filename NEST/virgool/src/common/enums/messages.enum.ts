@@ -17,6 +17,7 @@ export enum AuthMessage {
   SomethingWrong = "یک مشکلی پیش آمد",
   LoginRequired = "ابتدا وارد حساب خود شوید",
   Permission = "شما اجازه انجام این کار را ندارید!",
+  Banned = "حساب شما مسدود شده است",
 }
 
 export enum PublicMessage {
@@ -31,6 +32,8 @@ export enum PublicMessage {
   UnMarked = "با موفقیت حذف شد",
   Followed = "با موفقیت دنبال شد",
   UnFollowed = "با موفقیت از دنبال شوندگان حذف شد",
+  Banned = "با موفقیت مسدود شد",
+  UnBanned = "از لیست مسدود ها خارج شد",
 }
 
 export enum ConflictMessage {
@@ -42,6 +45,7 @@ export enum ConflictMessage {
 
 export enum NotFoundMessage {
   NotFound = "موردی پیدا نشد!",
+  NotFoundUser = "کاربری یافت نشد!",
 }
 
 export enum ValidationMessage {

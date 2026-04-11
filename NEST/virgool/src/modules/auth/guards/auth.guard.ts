@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { isJWT } from "class-validator";
 import { Request } from "express";
 import { Observable } from "rxjs";
@@ -6,6 +6,7 @@ import { AuthMessage } from "src/common/enums/messages.enum";
 import { AuthService } from "../auth.service";
 import { Reflector } from "@nestjs/core";
 import { SKIP_AUTH } from "src/common/decorators/skip-auth.decorator";
+import { UserStatus } from "src/common/enums/otherEnums.enum";
 
 @Injectable()
 export class AuthGaurd implements CanActivate {
@@ -21,6 +22,10 @@ export class AuthGaurd implements CanActivate {
 
     const token = this.extractToken(request);
     request.user = await this.authService.validateAccessToken(token);
+
+    if (request?.user?.status === UserStatus.Ban) {
+      throw new ForbiddenException(AuthMessage.Banned);
+    }
 
     return true;
   }

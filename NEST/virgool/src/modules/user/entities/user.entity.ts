@@ -8,7 +8,7 @@ import { BlogLikeEntity } from "src/modules/blog/enities/like.entity";
 import { BlogBookmarkEntity } from "src/modules/blog/enities/bookmark.entity";
 import { BlogCommentEntity } from "src/modules/blog/enities/comment.entity";
 import { ImageEntity } from "src/modules/image/entities/image.entity";
-import { Roles } from "src/common/enums/otherEnums.enum";
+import { Roles, UserStatus } from "src/common/enums/otherEnums.enum";
 import { FollowEntity } from "./follow.entity";
 
 @Entity(EntityNames.User)
@@ -31,6 +31,8 @@ export class UserEntity extends BaseEntity {
   verified_email: boolean;
   @Column({ nullable: true, default: false })
   verified_phone: boolean;
+  @Column({ nullable: true })
+  status: UserStatus | null;
 
   @Column({ nullable: true })
   otpId: number;

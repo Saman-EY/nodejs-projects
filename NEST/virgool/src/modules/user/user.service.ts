@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException, Scope } from "@nestjs/common";
-import { CreateUserDto } from "./dto/create-user.dto";
+import { BanDto, CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "./entities/user.entity";
@@ -9,7 +9,7 @@ import { REQUEST } from "@nestjs/core";
 import type { Request } from "express";
 import { ProfileDto } from "./dto/profile.dto";
 import { isDate } from "class-validator";
-import { CookieKeys, Gender } from "src/common/enums/otherEnums.enum";
+import { CookieKeys, Gender, UserStatus } from "src/common/enums/otherEnums.enum";
 import { TProfileImages } from "src/common/types/types";
 import { AuthMessage, ConflictMessage, NotFoundMessage, PublicMessage } from "src/common/enums/messages.enum";
 import { AuthService } from "../auth/auth.service";
@@ -90,6 +90,7 @@ export class UserService {
       following,
     };
   }
+
   async followersList(paginationDto: PaginationDto) {
     const { id: userId } = this.req.user!;
 
@@ -326,5 +327,22 @@ export class UserService {
     await this.otpRepo.delete(otp.id);
 
     return otp;
+  }
+
+  async banToggle(banDto: BanDto) {
+    const { userId } = banDto;
+    const user = await this.userRepo.findOneBy({ id: userId });
+    if (!user) throw new NotFoundException(NotFoundMessage.NotFoundUser);
+    let message = PublicMessage.Banned;
+    if (user.status == UserStatus.Ban) {
+      await this.userRepo.update({ id: userId }, { status: null });
+      message = PublicMessage.UnBanned;
+    } else {
+      await this.userRepo.update({ id: userId }, { status: UserStatus.Ban });
+    }
+
+    return {
+      message,
+    };
   }
 }

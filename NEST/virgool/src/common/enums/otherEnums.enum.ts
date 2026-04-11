@@ -24,3 +24,8 @@ export enum Roles {
   Admin = "admin",
   User = "user",
 }
+
+export enum UserStatus {
+  Ban = "ban",
+  Report = "report",
+}
