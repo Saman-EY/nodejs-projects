@@ -28,7 +28,7 @@ export class ProfileEntity extends BaseEntity {
 
   @AfterLoad()
   map() {
-    this.bg_image = `http://localhost:3000/${this.bg_image.replace(/\\/g, "/")}`; // for converting \\uploads to / in return
+    this.bg_image = `http://localhost:3000/${this.bg_image?.replace(/\\/g, "/")}`; // for converting \\uploads to / in return
     // this.image_profile = `http://localhost:3000/${this.image_profile.replace(/\\/g, "/")}`; // for converting \\uploads to / in return
   }
 }
