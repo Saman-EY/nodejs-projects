@@ -17,5 +17,8 @@ namespace NodeJS {
     PHONE_TOKEN_SECRET: string;
 
     SMS_URL: string;
+
+    GOOGLE_CLIENT_ID: string;
+    GOOGLE_SECRET_ID: string;
   }
 }

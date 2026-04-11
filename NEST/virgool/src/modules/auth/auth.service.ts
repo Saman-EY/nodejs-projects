@@ -15,12 +15,14 @@ import { Repository } from "typeorm";
 import { ProfileEntity } from "../user/entities/profile.entity";
 import { AuthMessage, BadRequestMessage, PublicMessage } from "src/common/enums/messages.enum";
 import { OtpEntity } from "../user/entities/otp.entity";
-import { randomInt } from "crypto";
 import type { Request, Response } from "express";
 import { TokenService } from "./tokens.service";
 import { CookieKeys } from "src/common/enums/otherEnums.enum";
 import { REQUEST } from "@nestjs/core";
 import { KavenegarService } from "../http/kavenegar.service";
+import { TGooglUser } from "src/common/types/types";
+import { randomId } from "src/common/utils/functions.utils";
+import { randomInt } from "crypto";
 
 @Injectable({ scope: Scope.REQUEST }) // get request
 export class AuthService {
@@ -219,5 +221,33 @@ export class AuthService {
     // user.otpId = otp.id;
     // await this.userRepository.save(user);
     return { message: PublicMessage.SendOtp, token, code: otp.code };
+  }
+
+  async googleAuth(userData: TGooglUser) {
+    const { email, firstName, lastName } = userData;
+    let user = await this.userRepository.findOneBy({ email });
+    let token: string;
+    if (user) {
+      token = this.tokenService.createAccessToken({ userId: user.id });
+    } else {
+      user = this.userRepository.create({
+        email,
+        verified_email: true,
+        username: email.split("@")[0] + randomId(),
+      });
+      user = await this.userRepository.save(user);
+
+      let profile = this.profileRepository.create({
+        userId: user.id,
+        nick_name: `${firstName} ${lastName}`,
+      });
+
+      profile = await this.profileRepository.save(profile);
+      user.profileId = profile.id;
+      user = await this.userRepository.save(user);
+      token = this.tokenService.createAccessToken({ userId: user.id });
+    }
+
+    return token;
   }
 }

@@ -7,3 +7,9 @@ declare global {
     }
   }
 }
+
+// declare module "express-serve-static-code" {
+//   interface Request {
+//     user?: UserEntity;
+//   }
+// }

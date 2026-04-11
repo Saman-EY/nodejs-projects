@@ -1,6 +1,7 @@
 import { EntityNames } from "src/common/enums/entity.enum";
-import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne } from "typeorm";
+import {  Column, CreateDateColumn, Entity, ManyToOne } from "typeorm";
 import { UserEntity } from "./user.entity";
+import { BaseEntity } from "src/common/abstracts/base.entity";
 
 @Entity(EntityNames.Follow)
 export class FollowEntity extends BaseEntity {
