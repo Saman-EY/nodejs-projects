@@ -31,8 +31,10 @@ export class UserEntity extends BaseEntity {
   verified_email: boolean;
   @Column({ nullable: true, default: false })
   verified_phone: boolean;
-  @Column({type: "varchar", nullable: true })
+  @Column({ type: "varchar", nullable: true })
   status: UserStatus | null;
+  @Column({ nullable: true })
+  balance: number;
 
   @Column({ nullable: true })
   otpId: number;
