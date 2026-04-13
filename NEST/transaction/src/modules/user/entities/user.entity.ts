@@ -10,7 +10,7 @@ export class UserEntity {
   @Column()
   mobile: string;
   @Column({ type: "numeric", default: 0 })
-  balance: string;
+  balance: number;
 
   @OneToMany(() => TransactionEntity, (transaction) => transaction.user)
   transactions: TransactionEntity[];

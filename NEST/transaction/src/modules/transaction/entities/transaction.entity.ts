@@ -14,6 +14,8 @@ export class TransactionEntity {
   userId: number;
   @Column({ type: "numeric" })
   amount: number;
+  @Column()
+  purchasedProductId: number;
 
   @ManyToOne(() => UserEntity, (user) => user.transactions, { onDelete: "SET NULL" })
   user: UserEntity;
