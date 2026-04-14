@@ -8,13 +8,13 @@ export class TransactionEntity {
   id: number;
   @Column({ type: "enum", enum: TransactionTypes })
   type: string;
-  @Column()
+  @Column({ unique: true })
   invoice_number: string;
   @Column()
   userId: number;
   @Column({ type: "numeric" })
   amount: number;
-  @Column()
+  @Column({ nullable: true })
   purchasedProductId: number;
 
   @ManyToOne(() => UserEntity, (user) => user.transactions, { onDelete: "SET NULL" })

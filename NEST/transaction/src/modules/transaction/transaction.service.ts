@@ -27,7 +27,7 @@ export class TransactionService {
       const user = await this.userService.createUser({ mobile, fullname });
       const userData = await queryRunner.manager.findOneBy(UserEntity, { id: user.id });
       if (!userData) throw new NotFoundException("data not found!");
-      const newBalance = userData?.balance + amount;
+      const newBalance = +userData?.balance + +amount;
       await queryRunner.manager.update(UserEntity, { id: user.id }, { balance: newBalance });
       await queryRunner.manager.insert(TransactionEntity, {
         amount,
@@ -39,7 +39,7 @@ export class TransactionService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
       return {
-        message: "payment successfuly",
+        message: "deposit successfuly",
       };
     } catch (error) {
       console.log(error);

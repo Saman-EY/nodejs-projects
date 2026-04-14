@@ -7,5 +7,4 @@ export class DepositDto {
 export class WithdraDto {
   productId: number;
   userId: number;
-  amount: number;
 }
