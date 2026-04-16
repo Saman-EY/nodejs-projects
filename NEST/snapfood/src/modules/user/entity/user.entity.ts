@@ -1,6 +1,16 @@
 import { EntityNames } from "src/common/enums";
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { AddressEntity } from "./address.entity";
+import { OtpEntity } from "./otp.entity";
 
 @Entity(EntityNames.User)
 export class UserEntity {
@@ -12,17 +22,24 @@ export class UserEntity {
   last_name: string;
   @Column({ unique: true })
   mobile: string;
+  @Column({ default: false })
+  mobile_verified: boolean;
   @Column({ nullable: true, unique: true })
   email: string;
-  @Column({ unique: true })
+  @Column({ unique: true, nullable:true })
   invite_code: string;
   @Column({ default: 0 })
   score: number;
   @Column({ nullable: true })
   agentId: number;
+  @Column({ nullable: true })
+  otpId: number;
   @OneToMany(() => AddressEntity, (address) => address.user)
   addressList: AddressEntity;
-  
+  @OneToOne(() => OtpEntity, (otp) => otp.user, { onDelete: "SET NULL" })
+  @JoinColumn()
+  otp: OtpEntity;
+
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()

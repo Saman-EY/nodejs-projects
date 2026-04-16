@@ -2,6 +2,7 @@ export enum EntityNames {
   User = "user",
   User_Address = "user_address",
   Category = "category",
+  Supplier = "supplier",
 }
 export enum FormTypes {
   Json = "application/json",

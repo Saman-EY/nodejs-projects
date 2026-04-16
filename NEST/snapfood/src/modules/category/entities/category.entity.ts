@@ -1,4 +1,5 @@
 import { EntityNames } from "src/common/enums";
+import { SupplierEntity } from "src/modules/supplier/entity/supplier.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity(EntityNames.Category)
@@ -12,7 +13,7 @@ export class CategoryEntity {
   slug: string;
   @Column()
   image: string;
-  @Column({nullable:true})
+  @Column({ nullable: true })
   imageKey: string;
   @Column({ default: true })
   show: boolean;
@@ -25,4 +26,8 @@ export class CategoryEntity {
   @OneToMany(() => CategoryEntity, (category) => category.parent, { onDelete: "CASCADE" })
   // @JoinColumn()
   children: CategoryEntity[];
+
+  @OneToMany(() => SupplierEntity, (supplier) => supplier.category, { onDelete: "CASCADE" })
+  // @JoinColumn()
+  suppliers: SupplierEntity[];
 }
