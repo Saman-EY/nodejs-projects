@@ -2,6 +2,7 @@ import { EntityNames, SupplierStatus } from "src/common/enums";
 import { CategoryEntity } from "src/modules/category/entities/category.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { SupplierOtpEntity } from "./otp.entity";
+import { TypeEntity } from "src/modules/menu/entity/type.entity";
 
 @Entity(EntityNames.Supplier)
 export class SupplierEntity {
@@ -34,6 +35,9 @@ export class SupplierEntity {
   @Column({ nullable: true, default: SupplierStatus.Registered })
   status: string;
 
+  @Column({ nullable: true })
+  menu: string;
+
   @Column({ default: false })
   mobile_verified: boolean;
 
@@ -42,6 +46,8 @@ export class SupplierEntity {
 
   @OneToMany(() => SupplierEntity, (supplier) => supplier.agent)
   subsets: SupplierEntity[];
+  @OneToMany(() => TypeEntity, (type) => type.supplier)
+  menuTypes: TypeEntity[];
   @ManyToOne(() => SupplierEntity, (supplier) => supplier.subsets)
   agent: SupplierEntity;
 
@@ -49,6 +55,6 @@ export class SupplierEntity {
   otpId: number;
 
   @OneToOne(() => SupplierOtpEntity, (otp) => otp.supplier, { onDelete: "SET NULL" })
-  @JoinColumn({name: "otpId"})
+  @JoinColumn({ name: "otpId" })
   supplier_otp: SupplierOtpEntity;
 }

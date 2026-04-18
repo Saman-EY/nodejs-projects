@@ -5,6 +5,9 @@ export enum EntityNames {
   Supplier = "supplier",
   UserOtp = "user_otp",
   SupplierOtp = "supplier_otp",
+  Menu = "menu",
+  Type = "type",
+  Feedback = "feedback",
 }
 export enum FormTypes {
   Json = "application/json",

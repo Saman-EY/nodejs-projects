@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { AddressEntity } from "./address.entity";
 import { OtpEntity } from "./otp.entity";
+import { FeedbackEntity } from "src/modules/menu/entity/feedback.entity";
 
 @Entity(EntityNames.User)
 export class UserEntity {
@@ -26,7 +27,7 @@ export class UserEntity {
   mobile_verified: boolean;
   @Column({ nullable: true, unique: true })
   email: string;
-  @Column({ unique: true, nullable:true })
+  @Column({ unique: true, nullable: true })
   invite_code: string;
   @Column({ default: 0 })
   score: number;
@@ -36,6 +37,8 @@ export class UserEntity {
   otpId: number;
   @OneToMany(() => AddressEntity, (address) => address.user)
   addressList: AddressEntity;
+  @OneToMany(() => FeedbackEntity, (feedback) => feedback.user)
+  feedbacks: FeedbackEntity[];
   @OneToOne(() => OtpEntity, (otp) => otp.user, { onDelete: "SET NULL" })
   @JoinColumn()
   otp: OtpEntity;
