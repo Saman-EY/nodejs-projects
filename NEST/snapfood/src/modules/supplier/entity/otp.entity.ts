@@ -1,9 +1,9 @@
 import { Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { UserEntity } from "./user.entity";
+import { SupplierEntity } from "./supplier.entity";
 import { EntityNames } from "src/common/enums";
 
-@Entity(EntityNames.UserOtp)
-export class OtpEntity {
+@Entity(EntityNames.SupplierOtp)
+export class SupplierOtpEntity {
   @PrimaryGeneratedColumn("increment")
   id: number;
   @Column()
@@ -11,7 +11,7 @@ export class OtpEntity {
   @Column()
   expires_in: Date;
   @Column()
-  userId: number;
-  @OneToOne(() => UserEntity, (user) => user.otp, { onDelete: "CASCADE" })
-  user: UserEntity;
+  supplierId: number;
+  @OneToOne(() => SupplierEntity, (supplier) => supplier.supplier_otp, { onDelete: "CASCADE" })
+  supplier: SupplierEntity;
 }

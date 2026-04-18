@@ -1,17 +1,16 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { isJWT } from "class-validator";
 import { Request } from "express";
-import { Observable } from "rxjs";
-import { AuthService } from "../auth.service";
+import { SupplierService } from "../supplier.service";
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService) {}
+export class SupplierGuard implements CanActivate {
+  constructor(private supplierService: SupplierService) {}
 
   async canActivate(context: ExecutionContext) {
     const request: Request = context.switchToHttp().getRequest<Request>();
     const token = this.extractToken(request);
-    request.user = await this.authService.validateToken(token);
+    request.user = await this.supplierService.validateToken(token);
     return true;
   }
 
