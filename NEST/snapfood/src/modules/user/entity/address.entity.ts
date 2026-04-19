@@ -5,24 +5,24 @@ import { UserEntity } from "./user.entity";
 @Entity(EntityNames.User_Address)
 export class AddressEntity {
   @PrimaryGeneratedColumn("increment")
-  id: number;
+  id!: number;
   @Column()
-  title: string;
+  title!: string;
   @Column()
-  province: string;
+  province!: string;
   @Column()
-  city: string;
+  city!: string;
   @Column()
-  address: string;
+  address!: string;
   @Column({ nullable: true })
-  postal_code: string;
+  postal_code!: string;
   @Column()
-  userId: number;
+  userId!: number;
   @ManyToOne(() => UserEntity, (user) => user.addressList, { onDelete: "CASCADE" })
-  user: UserEntity;
+  user!: UserEntity;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 }

@@ -16,35 +16,35 @@ import { FeedbackEntity } from "src/modules/menu/entity/feedback.entity";
 @Entity(EntityNames.User)
 export class UserEntity {
   @PrimaryGeneratedColumn("increment")
-  id: number;
+  id!: number;
   @Column({ nullable: true })
-  first_name: string;
+  first_name!: string;
   @Column({ nullable: true })
-  last_name: string;
+  last_name!: string;
   @Column({ unique: true })
-  mobile: string;
+  mobile!: string;
   @Column({ default: false })
-  mobile_verified: boolean;
+  mobile_verified!: boolean;
   @Column({ nullable: true, unique: true })
-  email: string;
+  email!: string;
   @Column({ unique: true, nullable: true })
-  invite_code: string;
+  invite_code!: string;
   @Column({ default: 0 })
-  score: number;
+  score!: number;
   @Column({ nullable: true })
-  agentId: number;
+  agentId!: number;
   @Column({ nullable: true })
-  otpId: number;
+  otpId!: number;
   @OneToMany(() => AddressEntity, (address) => address.user)
-  addressList: AddressEntity;
+  addressList!: AddressEntity;
   @OneToMany(() => FeedbackEntity, (feedback) => feedback.user)
-  feedbacks: FeedbackEntity[];
+  feedbacks!: FeedbackEntity[];
   @OneToOne(() => OtpEntity, (otp) => otp.user, { onDelete: "SET NULL" })
   @JoinColumn()
-  otp: OtpEntity;
+  otp!: OtpEntity;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 }

@@ -5,13 +5,13 @@ import { EntityNames } from "src/common/enums";
 @Entity(EntityNames.UserOtp)
 export class OtpEntity {
   @PrimaryGeneratedColumn("increment")
-  id: number;
+  id!: number;
   @Column()
-  code: number;
+  code!: number;
   @Column()
-  expires_in: Date;
+  expires_in!: Date;
   @Column()
-  userId: number;
+  userId!: number;
   @OneToOne(() => UserEntity, (user) => user.otp, { onDelete: "CASCADE" })
-  user: UserEntity;
+  user!: UserEntity;
 }

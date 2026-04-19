@@ -7,54 +7,54 @@ import { TypeEntity } from "src/modules/menu/entity/type.entity";
 @Entity(EntityNames.Supplier)
 export class SupplierEntity {
   @PrimaryGeneratedColumn("increment")
-  id: number;
+  id!: number;
   @Column()
-  manager_name: string;
+  manager_name!: string;
   @Column()
-  manager_family: string;
+  manager_family!: string;
   @Column()
-  store_name: string;
+  store_name!: string;
   @Column()
-  city: string;
+  city!: string;
   @Column()
-  phone: string;
+  phone!: string;
   @Column()
-  invite_code: string;
+  invite_code!: string;
   @Column({ nullable: true })
-  agentId: number;
+  agentId!: number;
   @Column({ nullable: true })
-  categoryId: number;
+  categoryId!: number;
   @Column({ nullable: true })
-  national_code: string;
+  national_code!: string;
   @Column({ nullable: true })
-  email: string;
+  email!: string;
   @Column({ nullable: true })
-  image: string;
+  image!: string;
   @Column({ nullable: true })
-  document: string;
+  document!: string;
   @Column({ nullable: true, default: SupplierStatus.Registered })
-  status: string;
+  status!: string;
 
   @Column({ nullable: true })
-  menu: string;
+  menu!: string;
 
   @Column({ default: false })
-  mobile_verified: boolean;
+  mobile_verified!: boolean;
 
   @ManyToOne(() => CategoryEntity, (category) => category.suppliers, { onDelete: "SET NULL" })
-  category: CategoryEntity;
+  category!: CategoryEntity;
 
   @OneToMany(() => SupplierEntity, (supplier) => supplier.agent)
-  subsets: SupplierEntity[];
+  subsets!: SupplierEntity[];
   @OneToMany(() => TypeEntity, (type) => type.supplier)
-  menuTypes: TypeEntity[];
+  menuTypes!: TypeEntity[];
   @ManyToOne(() => SupplierEntity, (supplier) => supplier.subsets)
-  agent: SupplierEntity;
+  agent!: SupplierEntity;
 
   @Column({ nullable: true })
-  otpId: number;
+  otpId!: number;
 
   @OneToOne(() => SupplierOtpEntity, (otp) => otp.supplier, { onDelete: "SET NULL" })
   @JoinColumn({ name: "otpId" })
-  supplier_otp: SupplierOtpEntity;
+  supplier_otp!: SupplierOtpEntity;
 }

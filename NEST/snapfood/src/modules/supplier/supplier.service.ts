@@ -3,10 +3,11 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
   Scope,
   UnauthorizedException,
 } from "@nestjs/common";
-import { SupplementaryInfoDto, SupplierDto } from "./dto/supplier.dto";
+import { LoginDto, SupplementaryInfoDto, SupplierDto } from "./dto/supplier.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { SupplierEntity } from "./entity/supplier.entity";
 import { Repository } from "typeorm";
@@ -39,7 +40,7 @@ export class SupplierService {
     if (supplier) throw new ConflictException("account already exist!");
 
     const category = await this.categoryService.findOneById(categoryId);
-    let agent = null;
+    let agent: any = null;
     if (invite_code) {
       agent = await this.supplierRepo.findOneBy({ invite_code });
     }
@@ -58,13 +59,26 @@ export class SupplierService {
     });
 
     await this.supplierRepo.save(account);
-    await this.createOtpForSuoolier(account);
+    const code = await this.createOtpForSupplier(account);
     return {
+      code,
+      message: "otp code send successfuly",
+    };
+  }
+  async login(loginDto: LoginDto) {
+    const { phone } = loginDto;
+
+    const supplier = await this.supplierRepo.findOneBy({ phone });
+    if (!supplier) throw new NotFoundException("Account Not Found!");
+
+    const code = await this.createOtpForSupplier(supplier);
+    return {
+      code,
       message: "otp code send successfuly",
     };
   }
 
-  async createOtpForSuoolier(supplier: SupplierEntity) {
+  async createOtpForSupplier(supplier: SupplierEntity) {
     const expiresIn = new Date(new Date().getTime() + 1000 * 60 * 2); // 2 min
     const code = randomInt(10000, 99999);
 
@@ -96,7 +110,8 @@ export class SupplierService {
       },
     });
     // validattion
-    if (!supplier || !supplier.supplier_otp) throw new UnauthorizedException("Account Not Found!");
+    if (!supplier) throw new UnauthorizedException("Account Not Found!");
+    if (!supplier.supplier_otp) throw new UnauthorizedException("Try Login Again");
     if (supplier?.supplier_otp?.code !== code) throw new UnauthorizedException("Otp Code Is Incorrect");
     if (supplier?.supplier_otp?.expires_in < now) throw new UnauthorizedException("Otp Code Has Expired");
 
@@ -104,6 +119,8 @@ export class SupplierService {
     const payload = { id: supplier?.id };
 
     const { accessToken, refreshToken } = this.createTokens(payload);
+
+    await this.supplierOtpRepo.delete({ supplierId: supplier.id });
 
     return {
       accessToken,
@@ -138,7 +155,12 @@ export class SupplierService {
       if (typeof payload === "object" && payload?.id) {
         const supplier = await this.supplierRepo.findOneBy({ id: payload.id });
         if (!supplier) throw new UnauthorizedException("Login To Your Account!");
-        return supplier;
+        return {
+          id: supplier.id,
+          first_name: supplier.manager_name,
+          last_name: supplier.manager_family,
+          phone: supplier.phone,
+        };
       }
 
       throw new UnauthorizedException("Login To Your Account!");
@@ -182,11 +204,11 @@ export class SupplierService {
     const imageResult = await this.s3service.uploadFile(image[0], "images");
     const docResult = await this.s3service.uploadFile(acceptedDoc[0], "acceptedDoc");
 
-    if (imageResult) supplier.image = imageResult.Location;
-    if (docResult) supplier.document = docResult.Location;
+    if (imageResult) supplier!.image = imageResult.Location;
+    if (docResult) supplier!.document = docResult.Location;
 
-    supplier.status = SupplierStatus.UploadedDoc;
-    await this.supplierRepo.save(supplier);
+    supplier!.status = SupplierStatus.UploadedDoc;
+    await this.supplierRepo.save(supplier!);
     return {
       message: "document uploaded",
     };

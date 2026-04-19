@@ -5,29 +5,29 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColum
 @Entity(EntityNames.Category)
 export class CategoryEntity {
   @PrimaryGeneratedColumn("increment")
-  id: number;
+  id!: number;
 
   @Column()
-  title: string;
+  title!: string;
   @Column({ unique: true })
-  slug: string;
+  slug!: string;
   @Column()
-  image: string;
+  image!: string;
   @Column({ nullable: true })
-  imageKey: string;
+  imageKey!: string;
   @Column({ default: true })
-  show: boolean;
+  show!: boolean;
   @Column({ nullable: true })
-  parentId: number;
+  parentId!: number;
 
   @ManyToOne(() => CategoryEntity, (category) => category.children, { onDelete: "CASCADE" })
-  parent: CategoryEntity;
+  parent!: CategoryEntity;
 
   @OneToMany(() => CategoryEntity, (category) => category.parent, { onDelete: "CASCADE" })
   // @JoinColumn()
-  children: CategoryEntity[];
+  children!: CategoryEntity[];
 
   @OneToMany(() => SupplierEntity, (supplier) => supplier.category, { onDelete: "CASCADE" })
   // @JoinColumn()
-  suppliers: SupplierEntity[];
+  suppliers!: SupplierEntity[];
 }

@@ -3,11 +3,19 @@ import { isJWT } from "class-validator";
 import { Request } from "express";
 import { SupplierService } from "../supplier.service";
 
+import { Reflector } from "@nestjs/core";
+import { SKIP_AUTH } from "src/common/decorators/skip-auth.decorator";
+
 @Injectable()
 export class SupplierGuard implements CanActivate {
-  constructor(private supplierService: SupplierService) {}
+  constructor(
+    private supplierService: SupplierService,
+    private reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext) {
+    const isSkippedAuth = this.reflector.get<boolean>(SKIP_AUTH, context.getHandler());
+    if (isSkippedAuth) return true;
     const request: Request = context.switchToHttp().getRequest<Request>();
     const token = this.extractToken(request);
     request.user = await this.supplierService.validateToken(token);
@@ -17,11 +25,11 @@ export class SupplierGuard implements CanActivate {
   protected extractToken(request: Request) {
     const { authorization } = request.headers;
     if (!authorization || authorization.trim() == "") {
-      throw new UnauthorizedException("Login To Your Account!");
+      throw new UnauthorizedException("Login To Your Account! (As Supplier)");
     }
     const [bearer, token] = authorization.split(" ");
     if (bearer.toLowerCase() !== "bearer" || !token || !isJWT(token)) {
-      throw new UnauthorizedException("Login To Your Account!");
+      throw new UnauthorizedException("Login To Your Account! (As Supplier)");
     }
 
     return token;

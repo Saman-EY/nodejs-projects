@@ -9,6 +9,7 @@ export enum EntityNames {
   Type = "type",
   Feedback = "feedback",
 }
+
 export enum FormTypes {
   Json = "application/json",
   UrlEncoded = "application/x-www-form-urlencoded",

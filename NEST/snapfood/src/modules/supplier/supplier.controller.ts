@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Put, UploadedFile, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { SupplierService } from "./supplier.service";
-import { SupplementaryInfoDto, SupplierDto, UploadDocsDto } from "./dto/supplier.dto";
+import { LoginDto, SupplementaryInfoDto, SupplierDto, UploadDocsDto } from "./dto/supplier.dto";
 import { CheckOtpDto } from "../auth/dto/auth.dto";
 import { SupplierAuthGuard } from "src/common/decorators/auth.decorator";
 import { UploadFileFieldsS3 } from "src/common/interceptors/upload.interceptor";
@@ -14,6 +14,10 @@ export class SupplierController {
   @Post("/signup")
   signup(@Body() supplierDto: SupplierDto) {
     return this.supplierService.signup(supplierDto);
+  }
+  @Post("login")
+  login(@Body() loginDto:LoginDto) {
+    return this.supplierService.login(loginDto);
   }
 
   @Post("/check-otp")

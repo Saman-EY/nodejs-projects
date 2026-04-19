@@ -7,27 +7,29 @@ import { FeedbackEntity } from "./feedback.entity";
 @Entity(EntityNames.Menu)
 export class MenuEntity {
   @PrimaryGeneratedColumn("increment")
-  id: number;
+  id!: number;
   @Column()
-  name: string;
+  name!: string;
   @Column({ type: "double" })
-  price: string;
+  price!: number;
   @Column({ type: "double", default: 0 })
-  discount: string;
-  @Column({ type: "double" })
-  score: string;
+  discount!: number;
+  @Column({ type: "double", nullable:true })
+  score!: number;
   @Column()
-  image: string;
+  image!: string;
   @Column()
-  description: string;
+  key!: string;
   @Column()
-  typeId: number;
+  description!: string;
   @Column()
-  supplierId: number;
+  typeId!: number;
+  @Column()
+  supplierId!: number;
   @ManyToOne(() => SupplierEntity, (supplier) => supplier.menu, { onDelete: "CASCADE" })
-  supplier: SupplierEntity;
+  supplier!: SupplierEntity;
   @ManyToOne(() => TypeEntity, (type) => type.items)
-  type: TypeEntity;
+  type!: TypeEntity;
   @OneToMany(() => FeedbackEntity, (feedback) => feedback.food)
-  feedbacks: FeedbackEntity[];
+  feedbacks!: FeedbackEntity[];
 }

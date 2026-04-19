@@ -6,13 +6,13 @@ import { MenuEntity } from "./menu.entity";
 @Entity(EntityNames.Type)
 export class TypeEntity {
   @PrimaryGeneratedColumn("increment")
-  id: number;
+  id!: number;
   @Column()
-  title: string;
+  title!: string;
   @Column()
-  supplierId: number;
+  supplierId!: number;
   @ManyToOne(() => SupplierEntity, (supplier) => supplier.menuTypes, { onDelete: "CASCADE" })
-  supplier: SupplierEntity;
+  supplier!: SupplierEntity;
   @OneToMany(() => MenuEntity, (food) => food.type)
-  items: MenuEntity[];
+  items!: MenuEntity[];
 }

@@ -13,5 +13,6 @@ import { CategoryEntity } from "../category/entities/category.entity";
   imports: [TypeOrmModule.forFeature([SupplierEntity, SupplierOtpEntity, CategoryEntity])],
   controllers: [SupplierController],
   providers: [SupplierService, JwtService, CategoryService, S3Service],
+  exports: [SupplierService, JwtService,S3Service, TypeOrmModule]
 })
 export class SupplierModule {}

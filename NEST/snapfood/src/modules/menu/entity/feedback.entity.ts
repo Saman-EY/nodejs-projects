@@ -8,21 +8,21 @@ import { MenuEntity } from "./menu.entity";
 @Entity(EntityNames.Feedback)
 export class FeedbackEntity {
   @PrimaryGeneratedColumn("increment")
-  id: number;
+  id!: number;
   @Column()
-  userId: number;
+  userId!: number;
   @Column()
-  foodId: number;
+  foodId!: number;
   @Column()
-  comment: string;
+  comment!: string;
   @Column()
-  score: number;
+  score!: number;
 
   @ManyToOne(() => UserEntity, (user) => user.feedbacks, { onDelete: "CASCADE" })
-  user: UserEntity;
+  user!: UserEntity;
   @ManyToOne(() => MenuEntity, (food) => food.feedbacks, { onDelete: "CASCADE" })
-  food: MenuEntity;
+  food!: MenuEntity;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 }
