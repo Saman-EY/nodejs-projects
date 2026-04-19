@@ -27,6 +27,17 @@ export class MenuService {
     return item;
   }
 
+  async getOne(id: number) {
+    const item = await this.menuRepo.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!item) throw new NotFoundException("Not found!");
+    return item;
+  }
+
   // MAIN
   async create(foodDto: FoodDto, image: Express.Multer.File) {
     const { id: supplierId } = this.req.user;

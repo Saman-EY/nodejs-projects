@@ -14,5 +14,6 @@ import { MenuTypeController } from "./controllers/type.controller";
   imports: [TypeOrmModule.forFeature([TypeEntity, MenuEntity, FeedbackEntity]), SupplierModule],
   controllers: [MenuController, MenuTypeController],
   providers: [MenuService, TypeService, FeedbackService],
+  exports: [MenuService, TypeService, TypeOrmModule]
 })
 export class MenuModule {}
