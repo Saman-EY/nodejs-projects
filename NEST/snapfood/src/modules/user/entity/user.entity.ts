@@ -12,6 +12,7 @@ import {
 import { AddressEntity } from "./address.entity";
 import { OtpEntity } from "./otp.entity";
 import { FeedbackEntity } from "src/modules/menu/entity/feedback.entity";
+import { BasketEntity } from "src/modules/basket/entities/basket.entity";
 
 @Entity(EntityNames.User)
 export class UserEntity {
@@ -39,6 +40,8 @@ export class UserEntity {
   addressList!: AddressEntity;
   @OneToMany(() => FeedbackEntity, (feedback) => feedback.user)
   feedbacks!: FeedbackEntity[];
+  @OneToMany(() => BasketEntity, (basket) => basket.user)
+  baskets!: BasketEntity[];
   @OneToOne(() => OtpEntity, (otp) => otp.user, { onDelete: "SET NULL" })
   @JoinColumn()
   otp!: OtpEntity;

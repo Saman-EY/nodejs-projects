@@ -1,12 +1,14 @@
 export enum EntityNames {
   User = "user",
   User_Address = "user_address",
+  User_Basket = "user_basket",
   Category = "category",
   Supplier = "supplier",
   UserOtp = "user_otp",
   SupplierOtp = "supplier_otp",
   Menu = "menu",
   Type = "type",
+  Discount = "discount",
   Feedback = "feedback",
 }
 
@@ -21,4 +23,9 @@ export enum SupplierStatus {
   SuplementaryInfo = "suplementary-information",
   UploadedDoc = "uploaded-document",
   Contract = "contract",
+}
+export enum BasketDiscountType {
+  Item = "item",
+  Total = "total",
+
 }

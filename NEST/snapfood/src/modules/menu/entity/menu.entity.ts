@@ -3,6 +3,7 @@ import { SupplierEntity } from "src/modules/supplier/entity/supplier.entity";
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { TypeEntity } from "./type.entity";
 import { FeedbackEntity } from "./feedback.entity";
+import { BasketEntity } from "src/modules/basket/entities/basket.entity";
 
 @Entity(EntityNames.Menu)
 export class MenuEntity {
@@ -32,4 +33,6 @@ export class MenuEntity {
   type!: TypeEntity;
   @OneToMany(() => FeedbackEntity, (feedback) => feedback.food)
   feedbacks!: FeedbackEntity[];
+  @OneToMany(() => BasketEntity, (basket) => basket.food)
+  baskets!: BasketEntity[];
 }
