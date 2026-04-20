@@ -5,7 +5,3 @@ export class BasketDto {
   foodId!: number;
 }
 
-export class DiscountBasketDto {
-  @ApiProperty()
-  code!: number;
-}

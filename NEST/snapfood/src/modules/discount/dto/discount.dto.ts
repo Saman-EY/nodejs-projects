@@ -12,3 +12,8 @@ export class DiscountDto {
   @ApiPropertyOptional()
   limit!: number;
 }
+
+export class DiscountBasketDto {
+  @ApiProperty()
+  code!: string;
+}

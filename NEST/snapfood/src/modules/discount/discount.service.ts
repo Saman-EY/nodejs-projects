@@ -15,6 +15,11 @@ export class DiscountService {
     const item = await this.discountRepo.findOneBy({ code });
     if (item) throw new ConflictException("Duplicated Discount!");
   }
+  async findOneByCode(code: string) {
+    const item = await this.discountRepo.findOneBy({ code });
+    if (!item) throw new NotFoundException("discount with this code not found!");
+    return item;
+  }
 
   // MAIN
   async create(discountDto: DiscountDto) {

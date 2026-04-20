@@ -14,8 +14,8 @@ export class BasketEntity {
   userId!: number;
   @Column()
   count!: number;
-  @Column({ enum: BasketDiscountType, type: "enum", nullable: true })
-  type!: string;
+  // @Column({ enum: BasketDiscountType, type: "enum", nullable: true })
+  // type!: string;
   @Column({ nullable: true })
   discountId!: number;
 
