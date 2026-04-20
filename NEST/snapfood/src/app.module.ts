@@ -6,9 +6,11 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { SupplierModule } from './modules/supplier/supplier.module';
 import { MenuModule } from "./modules/menu/menu.module";
 import { BasketModule } from './modules/basket/basket.module';
+import { OrderModule } from './modules/order/order.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(TypeOrmConfig()), CategoryModule, AuthModule, SupplierModule, MenuModule, BasketModule],
+  imports: [TypeOrmModule.forRoot(TypeOrmConfig()), CategoryModule, AuthModule, SupplierModule, MenuModule, BasketModule, OrderModule, PaymentModule],
   controllers: [],
   providers: [],
 })

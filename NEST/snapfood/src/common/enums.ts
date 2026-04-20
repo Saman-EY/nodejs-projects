@@ -8,14 +8,28 @@ export enum EntityNames {
   SupplierOtp = "supplier_otp",
   Menu = "menu",
   Type = "type",
+  Order = "order",
+  OrderItem = "order-item",
   Discount = "discount",
   Feedback = "feedback",
+  Payment = "payment",
 }
 
 export enum FormTypes {
   Json = "application/json",
   UrlEncoded = "application/x-www-form-urlencoded",
   Multipart = "multipart/form-data",
+}
+export enum OrderStatus {
+  Pending = "pending",
+  Canceled = "canceled",
+  Paid = "paid",
+  Done = "done",
+}
+export enum OrderItemStatus {
+  Pending = "pending",
+  Canceled = "canceled",
+  Send = "send",
 }
 
 export enum SupplierStatus {
@@ -27,5 +41,4 @@ export enum SupplierStatus {
 export enum BasketDiscountType {
   Item = "item",
   Total = "total",
-
 }

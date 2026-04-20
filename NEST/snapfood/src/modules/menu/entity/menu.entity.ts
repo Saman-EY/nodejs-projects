@@ -4,6 +4,7 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "ty
 import { TypeEntity } from "./type.entity";
 import { FeedbackEntity } from "./feedback.entity";
 import { BasketEntity } from "src/modules/basket/entities/basket.entity";
+import { OrderItemEntity } from "src/modules/order/entities/order-items.entity";
 
 @Entity(EntityNames.Menu)
 export class MenuEntity {
@@ -37,4 +38,6 @@ export class MenuEntity {
   feedbacks!: FeedbackEntity[];
   @OneToMany(() => BasketEntity, (basket) => basket.food)
   baskets!: BasketEntity[];
+  @OneToMany(() => OrderItemEntity, (item) => item.food)
+  orders!: OrderItemEntity[];
 }

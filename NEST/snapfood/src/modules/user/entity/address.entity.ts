@@ -1,6 +1,15 @@
 import { EntityNames } from "src/common/enums";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { UserEntity } from "./user.entity";
+import { OrderEntity } from "src/modules/order/entities/order.entity";
 
 @Entity(EntityNames.User_Address)
 export class AddressEntity {
@@ -20,6 +29,8 @@ export class AddressEntity {
   userId!: number;
   @ManyToOne(() => UserEntity, (user) => user.addressList, { onDelete: "CASCADE" })
   user!: UserEntity;
+  @OneToMany(() => OrderEntity, (order) => order.address, { onDelete: "SET NULL" })
+  orders!: OrderEntity[];
 
   @CreateDateColumn()
   created_at!: Date;

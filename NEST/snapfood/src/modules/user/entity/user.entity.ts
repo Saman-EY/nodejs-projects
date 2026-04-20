@@ -13,6 +13,8 @@ import { AddressEntity } from "./address.entity";
 import { OtpEntity } from "./otp.entity";
 import { FeedbackEntity } from "src/modules/menu/entity/feedback.entity";
 import { BasketEntity } from "src/modules/basket/entities/basket.entity";
+import { OrderEntity } from "src/modules/order/entities/order.entity";
+import { PaymentEntity } from "src/modules/payment/entities/payment.entity";
 
 @Entity(EntityNames.User)
 export class UserEntity {
@@ -38,8 +40,12 @@ export class UserEntity {
   otpId!: number;
   @OneToMany(() => AddressEntity, (address) => address.user)
   addressList!: AddressEntity;
+  @OneToMany(() => OrderEntity, (order) => order.user)
+  orders!: OrderEntity;
   @OneToMany(() => FeedbackEntity, (feedback) => feedback.user)
   feedbacks!: FeedbackEntity[];
+  @OneToMany(() => PaymentEntity, (payment) => payment.user)
+  payments!: PaymentEntity[];
   @OneToMany(() => BasketEntity, (basket) => basket.user)
   baskets!: BasketEntity[];
   @OneToOne(() => OtpEntity, (otp) => otp.user, { onDelete: "SET NULL" })
