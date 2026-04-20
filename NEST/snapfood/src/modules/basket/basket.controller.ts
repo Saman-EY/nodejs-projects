@@ -35,6 +35,8 @@ export class BasketController {
     return this.basketService.removeDiscount(discountDto);
   }
 
-  @Get()
-  getBasket() {}
+  @Get("/")
+  getBasket() {
+    return this.basketService.getBasket();
+  }
 }

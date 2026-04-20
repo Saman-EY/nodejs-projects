@@ -75,7 +75,111 @@ export class BasketService {
     throw new BadRequestException("item has not found in basket");
   }
 
-  async getBasket() {}
+  async getBasket() {
+    const { id: userId } = this.req.user;
+
+    const basketItems = await this.basketRepo.find({
+      relations: {
+        discount: true,
+        food: {
+          supplier: true,
+        },
+      },
+
+      where: {
+        userId,
+      },
+    });
+
+    const foods = basketItems.filter((item) => item.foodId);
+    const supplierDiscounts = basketItems.filter((item) => item.discount.supplierId);
+    const generalDiscount = basketItems.find((item) => item.discount.id && !item.discount.supplierId);
+
+    let total_amount = 0;
+    let payment_amount = 0;
+    let total_discount_amount = 0;
+    let foodList: any = [];
+
+    for (const item of foods) {
+      let discount_amount = 0;
+      let discountCode: string | null = null;
+      const { food, count } = item;
+      total_amount += food.price * count;
+      const supplieId = food.supplierId;
+
+      let foodPrice = food.price * count;
+
+      if (food.is_active && food.discount > 0) {
+        discount_amount += foodPrice * (food.discount / 100);
+        foodPrice = foodPrice - foodPrice * (food.discount / 100);
+      }
+
+      const discountItem = supplierDiscounts.find((item) => item.discount.supplierId === supplieId);
+
+      if (discountItem) {
+        const {
+          discount: { active, limit, usage, amount, percent, code },
+        } = discountItem;
+        if (active) {
+          if (!limit || (limit && limit > usage)) {
+            discountCode = code;
+            if (percent && percent > 0) {
+              discount_amount += foodPrice * (percent / 100);
+              foodPrice = foodPrice - foodPrice * (percent / 100);
+            } else if (amount && amount > 0) {
+              discount_amount += amount;
+              foodPrice = amount > foodPrice ? 0 : foodPrice - amount;
+            }
+          }
+        }
+      }
+
+      payment_amount += foodPrice;
+      total_discount_amount += discount_amount;
+      foodList.push({
+        name: food.name,
+        description: food.description,
+        count,
+        image: food.image,
+        price: food.price,
+        total_amount: food.price * count,
+        discount_amount,
+        payment_amount: food.price * count - discount_amount,
+        discountCode,
+        supplierName: food.supplier?.store_name,
+        supplierImage: food.supplier?.image,
+      });
+    }
+
+    let generalDiscountDetail = {};
+    if (generalDiscount?.discount?.active) {
+      const { discount } = generalDiscount;
+      if (discount?.limit && discount.limit > discount.usage) {
+        let discount_amount = 0;
+        if (discount.percent > 0) {
+          discount_amount = payment_amount * (discount.percent / 100);
+        } else if (discount.amount > 0) {
+          discount_amount = discount.amount;
+        }
+
+        payment_amount = discount_amount > payment_amount ? 0 : payment_amount - discount_amount;
+        generalDiscountDetail = {
+          code: discount.code,
+          percent: discount.percent,
+          amount: discount.amount,
+          discount_amount,
+        };
+      }
+    }
+
+    return {
+      total_amount,
+      payment_amount,
+      total_discount_amount,
+      foodList,
+      generalDiscountDetail,
+    };
+  }
 
   // one discount for from admin - one discount for whole supplier
   async addDiscount(discountDto: DiscountBasketDto) {
@@ -151,6 +255,7 @@ export class BasketService {
       message: "discount code successfully added",
     };
   }
+
   async removeDiscount(discountDto: DiscountBasketDto) {
     const { id: userId } = this.req.user;
     const { code } = discountDto;

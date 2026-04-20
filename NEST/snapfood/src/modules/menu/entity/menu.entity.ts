@@ -15,7 +15,9 @@ export class MenuEntity {
   price!: number;
   @Column({ type: "double", default: 0 })
   discount!: number;
-  @Column({ type: "double", nullable:true })
+  @Column({ default: false })
+  is_active!: boolean;
+  @Column({ type: "double", nullable: true })
   score!: number;
   @Column()
   image!: string;
