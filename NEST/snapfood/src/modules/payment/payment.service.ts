@@ -1,26 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { Inject, Injectable, Scope } from "@nestjs/common";
+import { CreatePaymentDto } from "./dto/create-payment.dto";
+import { UpdatePaymentDto } from "./dto/update-payment.dto";
+import { REQUEST } from "@nestjs/core";
+import type { Request } from "express";
+import { BasketService } from "../basket/basket.service";
+import { ZarinpalService } from "../http/zarinpal.service";
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class PaymentService {
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
-  }
+  constructor(
+    @Inject(REQUEST) private req: Request,
+    private basketService: BasketService,
+    private zarinpalService: ZarinpalService,
+  ) {}
 
-  findAll() {
-    return `This action returns all payment`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
-  }
-
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
+  async getGatewayUrl() {
+    const { id: userId } = this.req.user;
+    const basket = await this.basketService.getBasket();
+    return this.zarinpalService.sendRequest({amount: basket.payment_amount, description: "PAYMENT ORDER", user: {email: "", mobile: ""}});
   }
 }
