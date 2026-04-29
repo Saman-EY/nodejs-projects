@@ -1,16 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PaymentService } from './payment.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
-import { UserAuthGaurd } from 'src/common/decorators/auth.decorator';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res } from "@nestjs/common";
+import { PaymentService } from "./payment.service";
+import { PaymentDto } from "./dto/payment.dto";
+import { UserAuthGaurd } from "src/common/decorators/auth.decorator";
+import type { Response } from "express";
 
-@Controller('payment')
+@Controller("payment")
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post("/")
   @UserAuthGaurd()
-  gatewayUrl(){
-    return this.paymentService.getGatewayUrl()
+  gatewayUrl(@Body() paymentDto: PaymentDto) {
+    return this.paymentService.getGatewayUrl(paymentDto);
+  }
+
+  @Get("/verify")
+  async verify(@Query("Authority") authority: string, @Query("Status") status: string, @Res() res: Response) {
+    const url = await this.paymentService.verify(authority, status);
+    return res.redirect(url);
   }
 }

@@ -13,10 +13,14 @@ import { TypeEntity } from "../menu/entity/type.entity";
 import { TypeService } from "../menu/service/type.service";
 import { S3Service } from "../s3/s3.service";
 import { ZarinpalService } from "../http/zarinpal.service";
+import { OrderService } from "../order/order.service";
+import { OrderEntity } from "../order/entities/order.entity";
+import { AddressEntity } from "../user/entity/address.entity";
+import { PaymentEntity } from "./entities/payment.entity";
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([BasketEntity, DiscountEntity, MenuEntity, TypeEntity])],
+  imports: [AuthModule, TypeOrmModule.forFeature([BasketEntity, DiscountEntity, MenuEntity, TypeEntity, OrderEntity, AddressEntity, PaymentEntity])],
   controllers: [PaymentController],
-  providers: [PaymentService, BasketService, MenuService, DiscountService, TypeService, S3Service],
+  providers: [PaymentService, BasketService, MenuService, DiscountService, TypeService, S3Service, OrderService],
 })
 export class PaymentModule {}
