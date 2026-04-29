@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put, UploadedFile, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, UploadedFile, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { SupplierService } from "./supplier.service";
 import { LoginDto, SupplementaryInfoDto, SupplierDto, UploadDocsDto } from "./dto/supplier.dto";
 import { CheckOtpDto } from "../auth/dto/auth.dto";
@@ -16,7 +16,7 @@ export class SupplierController {
     return this.supplierService.signup(supplierDto);
   }
   @Post("login")
-  login(@Body() loginDto:LoginDto) {
+  login(@Body() loginDto: LoginDto) {
     return this.supplierService.login(loginDto);
   }
 
@@ -43,4 +43,11 @@ export class SupplierController {
   uploadDocs(@Body() uploadedDocs: UploadDocsDto, @UploadedFiles() files: any) {
     return this.supplierService.uploadDocuments(files);
   }
+
+  @Get("/store-list")
+  getStoresFromSupplier() {
+    return this.supplierService.getAllStore();
+  }
 }
+
+

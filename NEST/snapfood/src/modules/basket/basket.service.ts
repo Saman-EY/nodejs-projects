@@ -72,7 +72,7 @@ export class BasketService {
       };
     }
 
-    throw new BadRequestException("item has not found in basket");
+    throw new BadRequestException("Item Is Not Exist In Basket");
   }
 
   async getBasket() {
@@ -92,29 +92,31 @@ export class BasketService {
     });
 
     const foods = basketItems.filter((item) => item.foodId);
-    const supplierDiscounts = basketItems.filter((item) => item.discount.supplierId);
-    const generalDiscount = basketItems.find((item) => item.discount.id && !item.discount.supplierId);
-
+    const supplierDiscounts = basketItems.filter((item) => item?.discount?.supplierId);
+    const generalDiscount = basketItems.find((item) => item?.discount?.id && !item?.discount?.supplierId);
+    
     let total_amount = 0;
     let payment_amount = 0;
     let total_discount_amount = 0;
     let foodList: any = [];
-
+    
     for (const item of foods) {
       let discount_amount = 0;
       let discountCode: string | null = null;
       const { food, count } = item;
       total_amount += food.price * count;
-      const supplieId = food.supplierId;
-
-      let foodPrice = food.price * count;
-
+      const supplierId = food?.supplierId;
+      
+      let foodPrice = food?.price * count;
+      
+      // percent for inner discount on each item
       if (food.is_active && food.discount > 0) {
         discount_amount += foodPrice * (food.discount / 100);
         foodPrice = foodPrice - foodPrice * (food.discount / 100);
       }
+      console.log("✅✅", food);
 
-      const discountItem = supplierDiscounts.find((item) => item.discount.supplierId === supplieId);
+      const discountItem = supplierDiscounts.find((item) => item?.discount?.supplierId === supplierId);
 
       if (discountItem) {
         const {
@@ -137,6 +139,7 @@ export class BasketService {
       payment_amount += foodPrice;
       total_discount_amount += discount_amount;
       foodList.push({
+        id: food.id,
         name: food.name,
         description: food.description,
         count,

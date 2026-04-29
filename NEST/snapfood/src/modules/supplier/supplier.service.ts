@@ -213,4 +213,28 @@ export class SupplierService {
       message: "document uploaded",
     };
   }
+
+  async getAllStore() {
+    return await this.supplierRepo.find({
+      relations: {
+        category: true,
+      },
+      select: {
+        id: true,
+        manager_family: true,
+        manager_name: true,
+        store_name: true,
+        city: true,
+        image: true,
+        document: true,
+        category: {
+          id: true,
+          title: true,
+          slug: true,
+          image: true,
+          imageKey: true,
+        },
+      },
+    });
+  }
 }
