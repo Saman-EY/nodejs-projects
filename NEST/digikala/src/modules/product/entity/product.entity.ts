@@ -8,6 +8,7 @@ import {
 import { ProductDetailEntity } from './product-detail.entity';
 import { ProductSizeEntity } from './product-size.entity';
 import { ProductColorEntity } from './product-color.entity';
+import { ProductTypeEnum } from 'src/common/enums';
 
 @Entity('product')
 export class ProductEntity {
@@ -19,6 +20,8 @@ export class ProductEntity {
   content!: string;
   @Column()
   slug!: string;
+  @Column({ enum: ProductTypeEnum })
+  type!: string;
   @Column()
   code!: string;
   @Column({ type: 'decimal', default: 0 })
