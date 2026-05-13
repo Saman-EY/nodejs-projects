@@ -18,7 +18,7 @@ export class CreateProductDto {
   count!: number;
   @ApiProperty()
   discount!: number;
-  @ApiProperty({ type: 'boolean' })
+  @ApiProperty()
   active_discount!: boolean;
 }
 

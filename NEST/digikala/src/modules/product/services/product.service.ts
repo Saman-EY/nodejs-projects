@@ -8,6 +8,7 @@ import { ProductEntity } from '../entity/product.entity';
 import { DeepPartial, Repository } from 'typeorm';
 import { CreateProductDto, UpdateProductDto } from '../dto/product.dto';
 import { ProductTypeEnum } from 'src/common/enums';
+import { toBoolean } from 'src/utils/functions';
 
 @Injectable()
 export class ProductService {
@@ -35,7 +36,7 @@ export class ProductService {
       slug,
       code,
       discount,
-      active_discount,
+      active_discount: toBoolean(active_discount) || false,
     };
 
     if (type === ProductTypeEnum.Single) {
@@ -87,6 +88,13 @@ export class ProductService {
     return this.ProductRepo.find({
       where: {},
       relations: { colors: true, sizes: true, details: true },
+      select: {
+        details: {
+          id: true,
+          key: true,
+          value: true,
+        },
+      },
     });
   }
 
