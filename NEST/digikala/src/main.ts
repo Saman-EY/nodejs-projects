@@ -9,7 +9,7 @@ async function bootstrap() {
   const port = process.env.PORT ?? 3000
   SwaggerConfigInit(app)
   await app.listen(port, () => {
-    console.log(`server run on : http://localhost:${port}`)
+    console.log(`server run on : http://localhost:${port}/swagger`)
   });
 }
 bootstrap();

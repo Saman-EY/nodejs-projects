@@ -1,14 +1,6 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProductEntity } from '../entity/product.entity';
-import { DeepPartial, Repository } from 'typeorm';
-import { UpdateProductDto } from '../dto/product.dto';
-import { ProductTypeEnum } from 'src/common/enums';
-import { toBoolean } from 'src/utils/functions';
+import { Repository } from 'typeorm';
 import { ProductDetailEntity } from '../entity/product-detail.entity';
 import { DetailDto, UpdateDetailDto } from '../dto/detail.dto';
 import { ProductService } from './product.service';
@@ -59,7 +51,7 @@ export class ProductDetailService {
   }
 
   async find(productId: number) {
-    await this.productService.findOneLean(productId)
+    await this.productService.findOneLean(productId);
     const details = await this.ProductDetailRepo.find({
       where: {
         productId,

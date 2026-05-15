@@ -26,7 +26,7 @@ export class ProductEntity {
   code!: string;
   @Column({ type: 'decimal', default: 0 })
   count!: number;
-  @Column({ type: 'decimal' })
+  @Column({ type: 'decimal', nullable: true })
   price!: number;
   @Column({ default: 0 })
   discount!: number;
