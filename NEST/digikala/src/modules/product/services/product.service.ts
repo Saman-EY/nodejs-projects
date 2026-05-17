@@ -110,6 +110,7 @@ export class ProductService {
   }
 
   async findOneLean(id: number) {
+    console.log("❌ in lean func")
     const product = await this.ProductRepo.findOne({
       where: { id },
     });

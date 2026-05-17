@@ -6,30 +6,37 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ProductService } from './product.service';
-import { SizeDto, UpdateSizeDto } from '../dto/size.dto';
-import { ProductSizeEntity } from '../entity/product-size.entity';
 import { toBoolean } from 'src/utils/functions';
 import { ProductEntity } from '../entity/product.entity';
 import { ProductTypeEnum } from 'src/common/enums';
+import { ProductColorEntity } from '../entity/product-color.entity';
+import { ColorDto, UpdateColorDto } from '../dto/color.dto';
 
 @Injectable()
-export class ProductSizeService {
+export class ProductColorService {
   constructor(
-    @InjectRepository(ProductSizeEntity)
-    private ProductSizeRepo: Repository<ProductSizeEntity>,
+    @InjectRepository(ProductColorEntity)
+    private ProductColorRepo: Repository<ProductColorEntity>,
     @InjectRepository(ProductEntity)
     private productService: ProductService,
     private dataSource: DataSource,
   ) {}
 
-  async create(sizeDto: SizeDto) {
+  async create(colorDto: ColorDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
 
     try {
       queryRunner.startTransaction();
-      const { active_discount, count, discount, price, productId, size } =
-        sizeDto;
+      const {
+        active_discount,
+        count,
+        discount,
+        price,
+        productId,
+        color_code,
+        color_name,
+      } = colorDto;
 
       let product = await queryRunner.manager.findOneBy(ProductEntity, {
         id: productId,
@@ -37,17 +44,19 @@ export class ProductSizeService {
 
       if (!product) throw new NotFoundException('product not found');
 
-      if (product.type !== ProductTypeEnum.Sizing)
+      if (product.type !== ProductTypeEnum.Coloring)
         throw new BadRequestException('Product Type Is Not Valid!');
 
-      await queryRunner.manager.insert(ProductSizeEntity, {
+      await queryRunner.manager.insert(ProductColorEntity, {
         count,
         discount,
         price,
-        size,
+        color_code,
+        color_name,
         active_discount: toBoolean(active_discount) ?? false,
         productId,
       });
+
       if (count > 0) {
         product.count = product.count + count;
         await queryRunner.manager.save(ProductEntity, product);
@@ -57,7 +66,7 @@ export class ProductSizeService {
       await queryRunner.release();
 
       return {
-        message: 'Product Size Created Successfuly!',
+        message: 'Product Color Created Successfuly!',
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -65,7 +74,7 @@ export class ProductSizeService {
       throw error;
     }
   }
-  async update(id: number, sizeDto: UpdateSizeDto) {
+  async update(id: number, colorDto: UpdateColorDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
 
@@ -78,36 +87,38 @@ export class ProductSizeService {
         discount,
         price,
         productId,
-        size: sizeTitle,
-      } = sizeDto;
+        color_code,
+        color_name,
+      } = colorDto;
 
       let product = await queryRunner.manager.findOneBy(ProductEntity, {
         id: productId,
       });
       if (!product) throw new NotFoundException('product not found');
 
-      let size = await queryRunner.manager.findOneBy(ProductSizeEntity, {
+      let color = await queryRunner.manager.findOneBy(ProductColorEntity, {
         id,
       });
-      if (!size) throw new NotFoundException('product not found');
+      if (!color) throw new NotFoundException('product color not found');
 
-      if (sizeTitle) size.size = sizeTitle;
-      if (active_discount) size.active_discount = active_discount;
-      if (price) size.price = price;
-      if (discount) size.discount = discount;
-      let previousCount = size.count;
+      if (active_discount) color.active_discount = active_discount;
+      if (price) color.price = price;
+      if (discount) color.discount = discount;
+      if (color_code) color.color_code = color_code;
+      if (color_name) color.color_name = color_name;
+      let previousCount = color.count;
       if (count && count > 0) {
         product.count = product.count - previousCount;
         product.count = product.count + count;
-        size.count = count;
-        await queryRunner.manager.save(ProductSizeEntity, size);
+        color.count = count;
+        await queryRunner.manager.save(ProductColorEntity, color);
       }
 
       await queryRunner.commitTransaction();
       await queryRunner.release();
 
       return {
-        message: 'Product Size Updated Successfuly!',
+        message: 'Product Color Updated Successfuly!',
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -117,40 +128,41 @@ export class ProductSizeService {
   }
 
   async findOne(id: number) {
-    const size = await this.ProductSizeRepo.findOne({
+    const color = await this.ProductColorRepo.findOne({
       where: { id },
     });
-    if (!size) throw new NotFoundException('not found!');
-    return size;
+    if (!color) throw new NotFoundException('not found!');
+    return color;
   }
 
   async find(productId: number) {
-    await this.productService.findOne(productId);
-    const sizes = await this.ProductSizeRepo.find({
+    console.log("🎸🎸", productId)
+    await this.productService.findOneLean(productId);
+    const colors = await this.ProductColorRepo.find({
       where: {
         productId,
       },
     });
 
-    return sizes;
+    return colors;
   }
 
   async delete(id: number) {
-    const queryRunner = await this.dataSource.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
 
     try {
       await queryRunner.startTransaction();
-      const size = await queryRunner.manager.findOneBy(ProductSizeEntity, {
+      const color = await queryRunner.manager.findOneBy(ProductColorEntity, {
         id,
       });
-      if (!size) throw new NotFoundException('size not found!');
-      if (size.count && size.count > 0) {
+      if (!color) throw new NotFoundException('color not found!');
+      if (color.count && color.count > 0) {
         const product = await queryRunner.manager.findOneBy(ProductEntity, {
-          id: size.productId,
+          id: color.productId,
         });
-        if (!product) throw new NotFoundException('size not found!');
-        product.count = Number(product.count) - Number(size.count);
+        if (!product) throw new NotFoundException('color not found!');
+        product.count = Number(product.count) - Number(color.count);
 
         await queryRunner.manager.save(ProductEntity, product);
       }
@@ -158,7 +170,7 @@ export class ProductSizeService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
       return {
-        message: 'Product Size Removed Successfuly!',
+        message: 'Product Color Removed Successfuly!',
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
