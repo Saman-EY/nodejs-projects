@@ -30,5 +30,6 @@ import { ProductColorService } from './services/product.color.service';
     ProductDetailController,
   ],
   providers: [ProductService, ProductDetailService, ProductSizeService, ProductColorService],
+  exports: [ProductService, ProductDetailService, ProductSizeService, ProductColorService, TypeOrmModule],
 })
 export class ProductModule {}

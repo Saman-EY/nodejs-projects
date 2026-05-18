@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ProductEntity } from './product.entity';
+import { BasketEntity } from 'src/modules/basket/entities/basket.entity';
 
 @Entity('product-color')
 export class ProductColorEntity {
@@ -28,5 +30,8 @@ export class ProductColorEntity {
   @ManyToOne(() => ProductEntity, (product) => product.colors, {
     onDelete: 'CASCADE',
   })
+  @OneToMany(() => BasketEntity, (basket) => basket.color)
+  baskets!: BasketEntity[];
+
   product!: ProductEntity;
 }

@@ -10,34 +10,35 @@ import {
 } from '@nestjs/common';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumes } from 'src/common/enums';
+import { DiscountService } from './discount.service';
+import { DiscountDto, UpdateDiscountDto } from './dto/discount.dto';
 
 @Controller('discount')
 @ApiTags('Discount')
 export class DiscountController {
-//   constructor(private colorService: ProductColorService) {}
+  constructor(private discountService: DiscountService) {}
 
-//   @Post('')
-//   @ApiConsumes(SwaggerConsumes.UrlEncoded)
-//   create(@Body() colorDto: ColorDto) {
-//     return this.colorService.create(colorDto);
-//   }
+  @Post('')
+  @ApiConsumes(SwaggerConsumes.UrlEncoded)
+  create(@Body() discountDto: DiscountDto) {
+    return this.discountService.create(discountDto);
+  }
+  @Get('')
+  find() {
+    return this.discountService.find();
+  }
 
-//   @Get('/product/:productId')
-//   find(@Param('productId', ParseIntPipe) productId: number) {
-//     return this.colorService.find(productId);
-//   }
-
-//   @Put('/:id')
-//   @ApiConsumes(SwaggerConsumes.UrlEncoded)
-//   update(
-//     @Body() colorDto: UpdateColorDto,
-//     @Param('id', ParseIntPipe) id: number,
-//   ) {
-//     return this.colorService.update(id, colorDto);
-//   }
-
-//   @Delete('/:id')
-//   delete(@Param('id', ParseIntPipe) id: number) {
-//     return this.colorService.delete(id);
-//   }
+  @Put('/:id')
+  @ApiConsumes(SwaggerConsumes.UrlEncoded)
+  update(
+    @Body() discountDto: UpdateDiscountDto,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.discountService.update(id, discountDto);
+  }
+  @Delete('/:id')
+  @ApiConsumes(SwaggerConsumes.UrlEncoded)
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.discountService.delete(id);
+  }
 }

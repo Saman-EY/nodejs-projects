@@ -1,5 +1,6 @@
 import { DiscountEnum } from 'src/common/enums';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BasketEntity } from 'src/modules/basket/entities/basket.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('discount')
 export class DiscountEntity {
@@ -15,10 +16,13 @@ export class DiscountEntity {
   limit!: number;
   @Column({ nullable: true, default: 0 })
   usage!: number;
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable: true })
   expires_in!: Date;
   @Column({ nullable: true })
   productId!: number;
   @Column({ type: 'enum', enum: DiscountEnum })
   type!: string;
+
+  @OneToMany(() => BasketEntity, (basket) => basket.discount)
+  baskets!: BasketEntity[];
 }
