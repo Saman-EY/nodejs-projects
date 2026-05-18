@@ -4,16 +4,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { BasketDto } from './dto/create-basket.dto';
-import { UpdateBasketDto } from './dto/update-basket.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BasketEntity } from './entities/basket.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { ProductService } from '../product/services/product.service';
 import { ProductColorService } from '../product/services/product.color.service';
 import { ProductSizeService } from '../product/services/product-size.service';
-import { ProductTypeEnum } from 'src/common/enums';
+import { DiscountEnum, ProductTypeEnum } from 'src/common/enums';
 import { ProductSizeEntity } from '../product/entity/product-size.entity';
 import { ProductColorEntity } from '../product/entity/product-color.entity';
+import { DiscountDto } from './dto/discount.dto';
+import { DiscountService } from '../discount/discount.service';
 
 @Injectable()
 export class BasketService {
@@ -24,6 +25,7 @@ export class BasketService {
     private productService: ProductService,
     private productColorService: ProductColorService,
     private productSizeService: ProductSizeService,
+    private discountService: DiscountService,
   ) {}
 
   async addToBasket(basketDto: BasketDto) {
@@ -74,6 +76,88 @@ export class BasketService {
 
     return {
       message: 'Product Added To Basket',
+    };
+  }
+
+  async addCodeToBasket(discountDto: DiscountDto) {
+    const { code } = discountDto;
+    const discount = await this.discountService.getDiscountByCode(code);
+    if (!discount) throw new NotFoundException('Discount Has Not Found');
+
+    if (discount.type === DiscountEnum.Product && discount.productId) {
+      const basketItem = await this.basketRepo.findOneBy({
+        productId: discount.productId,
+      });
+
+      if (!basketItem)
+        throw new BadRequestException(
+          "Couldn't Find Any Time Acceptable With This Code!",
+        );
+    }
+
+    if (
+      discount.limit &&
+      (discount.limit <= 0 || discount.usage >= discount.limit)
+    ) {
+      throw new BadRequestException('Discount Usage Reached the Limit');
+    }
+
+    if (discount.expires_in && discount.expires_in <= new Date()) {
+      throw new BadRequestException('Discount Code Expired!');
+    }
+
+    const existDiscount = await this.basketRepo.findOneBy({
+      discountId: discount.id,
+    });
+
+    if (existDiscount) {
+      throw new BadRequestException('Discount Already Exists!');
+    }
+
+    if (discount.type === DiscountEnum.Basket) {
+      const item = await this.basketRepo.findOne({
+        relations: {
+          discount: true,
+        },
+
+        where: {
+          discount: {
+            type: DiscountEnum.Basket,
+          },
+        },
+      });
+
+      if (item)
+        throw new BadRequestException('You ALready Used This Discount!');
+    }
+
+    await this.basketRepo.insert({
+      productId: discount?.productId,
+      discountId: discount.id,
+      count: 0,
+    });
+
+    return {
+      message: 'Discount Added!',
+    };
+  }
+  async removeCodeFromBasket(discountDto: DiscountDto) {
+    const { code } = discountDto;
+    const discount = await this.discountService.getDiscountByCode(code);
+    if (!discount) throw new NotFoundException('Discount Has Not Found');
+
+    const existDiscount = await this.basketRepo.findOneBy({
+      discountId: discount.id,
+    });
+
+    if (existDiscount) {
+      await this.basketRepo.delete({ id: discount.id });
+    } else {
+      throw new NotFoundException('Discount Has Not Found');
+    }
+
+    return {
+      message: 'Discount Added!',
     };
   }
 
