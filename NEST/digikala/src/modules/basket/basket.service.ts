@@ -16,6 +16,7 @@ import { ProductColorEntity } from '../product/entity/product-color.entity';
 import { DiscountDto } from './dto/discount.dto';
 import { DiscountService } from '../discount/discount.service';
 import { ProductEntity } from '../product/entity/product.entity';
+import { DiscountEntity } from '../discount/entity/discount.entity';
 
 @Injectable()
 export class BasketService {
@@ -29,11 +30,40 @@ export class BasketService {
     private discountService: DiscountService,
   ) {}
 
+  // SIDES
+  validateDiscount(discount: DiscountEntity) {
+    let limitCondition = discount.limit && discount.limit > discount.usage;
+    let timeCondition = discount.expires_in && discount.expires_in > new Date();
+
+    return limitCondition || timeCondition;
+  }
+
+  checkDiscountPercent(price: number, percent: number) {
+    let newDiscountAmount = +price * (+percent / 100);
+    let newPrice =
+      +newDiscountAmount > +price ? 0 : +price - +newDiscountAmount;
+    return {
+      newPrice,
+      newDiscountAmount,
+    };
+  }
+
+  checkDiscountAmount(price: number, amount: number) {
+    let newPrice = +amount > +price ? 0 : +price - +amount;
+    return {
+      newPrice,
+      newDiscountAmount: +amount,
+    };
+  }
+
+  // MAINS
+
   async getBasket() {
     let products: any = [];
     let discounts: any = [];
     let finalAmount = 0;
     let totalDiscountAmount = 0;
+    let totalPrice = 0;
 
     const items = await this.basketRepo.find({
       where: {}, // it must set with userId
@@ -55,10 +85,16 @@ export class BasketService {
       let discountAmount = 0;
 
       if (product?.type === ProductTypeEnum.Single) {
+        totalPrice += product.price;
+
         if (product?.active_discount) {
-          discountAmount = product.price * (product?.discount / 100);
-          totalDiscountAmount += discountAmount;
-          product.price -= discountAmount;
+          const { newDiscountAmount, newPrice } = this.checkDiscountPercent(
+            product.price,
+            discount.percent,
+          );
+
+          discountAmount = newDiscountAmount;
+          product.price = newPrice;
         }
 
         const existDiscount = productDiscounts.find(
@@ -67,12 +103,7 @@ export class BasketService {
         if (existDiscount) {
           const { discount } = existDiscount;
 
-          let limitCondition =
-            discount.limit && discount.limit > discount.usage;
-          let timeCondition =
-            discount.expires_in && discount.expires_in > new Date();
-
-          if (limitCondition || timeCondition) {
+          if (this.validateDiscount(discount)) {
             discounts.push({
               percent: discount.percent,
               amount: discount.amount,
@@ -82,22 +113,25 @@ export class BasketService {
             });
 
             if (discount.percent) {
-              discountAmount += product.price * (discount.percent / 100);
-              product.price =
-                discountAmount > product.price
-                  ? 0
-                  : product.price - discountAmount;
-            } else if (discount.amount) {
-              discountAmount += discount.amount;
-              product.price =
-                discountAmount > product.price
-                  ? 0
-                  : product.price - discountAmount;
-            }
+              const { newDiscountAmount, newPrice } = this.checkDiscountPercent(
+                product.price,
+                discount.percent,
+              );
 
-            totalDiscountAmount += discountAmount;
+              product.price = newPrice;
+              discountAmount += newDiscountAmount;
+            } else if (discount.amount) {
+              const { newDiscountAmount, newPrice } = this.checkDiscountAmount(
+                product.price,
+                discount.amount,
+              );
+
+              product.price = newPrice;
+              discountAmount += newDiscountAmount;
+            }
           }
         }
+        totalDiscountAmount += discountAmount;
         finalAmount += product.price * count;
         products.push({
           id: product.id,
@@ -108,10 +142,16 @@ export class BasketService {
           discount: product.discount,
         } as any);
       } else if (product?.type === ProductTypeEnum.Sizing) {
+        totalPrice += size.price;
+
         if (size?.active_discount) {
-          discountAmount = size.price * (size?.discount / 100);
-          totalDiscountAmount += discountAmount;
-          size.price -= discountAmount;
+          const { newDiscountAmount, newPrice } = this.checkDiscountPercent(
+            size.price,
+            discount.percent,
+          );
+
+          discountAmount = newDiscountAmount;
+          size.price = newPrice;
         }
 
         const existDiscount = productDiscounts.find(
@@ -120,12 +160,7 @@ export class BasketService {
         if (existDiscount) {
           const { discount } = existDiscount;
 
-          let limitCondition =
-            discount.limit && discount.limit > discount.usage;
-          let timeCondition =
-            discount.expires_in && discount.expires_in > new Date();
-
-          if (limitCondition || timeCondition) {
+          if (this.validateDiscount(discount)) {
             discounts.push({
               percent: discount.percent,
               amount: discount.amount,
@@ -135,18 +170,25 @@ export class BasketService {
             });
 
             if (discount.percent) {
-              discountAmount += size.price * (discount.percent / 100);
-              size.price =
-                discountAmount > size.price ? 0 : size.price - discountAmount;
-            } else if (discount.amount) {
-              discountAmount += discount.amount;
-              size.price =
-                discountAmount > size.price ? 0 : size.price - discountAmount;
-            }
+              const { newDiscountAmount, newPrice } = this.checkDiscountPercent(
+                size.price,
+                discount.percent,
+              );
 
-            totalDiscountAmount += discountAmount;
+              size.price = newPrice;
+              discountAmount += newDiscountAmount;
+            } else if (discount.amount) {
+              const { newDiscountAmount, newPrice } = this.checkDiscountAmount(
+                size.price,
+                discount.amount,
+              );
+
+              size.price = newPrice;
+              discountAmount += newDiscountAmount;
+            }
           }
         }
+        totalDiscountAmount += discountAmount;
         finalAmount += size.price * count;
         products.push({
           id: product.id,
@@ -158,10 +200,16 @@ export class BasketService {
           size: size.size,
         } as any);
       } else if (product?.type === ProductTypeEnum.Coloring) {
+        totalPrice += color.price;
+
         if (color?.active_discount) {
-          discountAmount = color.price * (color?.discount / 100);
-          totalDiscountAmount += discountAmount;
-          color.price -= discountAmount;
+          const { newDiscountAmount, newPrice } = this.checkDiscountPercent(
+            color.price,
+            discount.percent,
+          );
+
+          discountAmount = newDiscountAmount;
+          color.price = newPrice;
         }
 
         const existDiscount = productDiscounts.find(
@@ -170,12 +218,7 @@ export class BasketService {
         if (existDiscount) {
           const { discount } = existDiscount;
 
-          let limitCondition =
-            discount.limit && discount.limit > discount.usage;
-          let timeCondition =
-            discount.expires_in && discount.expires_in > new Date();
-
-          if (limitCondition || timeCondition) {
+          if (this.validateDiscount(discount)) {
             discounts.push({
               percent: discount.percent,
               amount: discount.amount,
@@ -185,18 +228,25 @@ export class BasketService {
             });
 
             if (discount.percent) {
-              discountAmount += color.price * (discount.percent / 100);
-              color.price =
-                discountAmount > color.price ? 0 : color.price - discountAmount;
-            } else if (discount.amount) {
-              discountAmount += discount.amount;
-              color.price =
-                discountAmount > color.price ? 0 : color.price - discountAmount;
-            }
+              const { newDiscountAmount, newPrice } = this.checkDiscountPercent(
+                color.price,
+                discount.percent,
+              );
 
-            totalDiscountAmount += discountAmount;
+              color.price = newPrice;
+              discountAmount += newDiscountAmount;
+            } else if (discount.amount) {
+              const { newDiscountAmount, newPrice } = this.checkDiscountAmount(
+                color.price,
+                discount.amount,
+              );
+
+              color.price = newPrice;
+              discountAmount += newDiscountAmount;
+            }
           }
         }
+        totalDiscountAmount += discountAmount;
         finalAmount += color.price * count;
         products.push({
           id: product.id,
@@ -209,11 +259,7 @@ export class BasketService {
           color_name: color.color_name,
         } as any);
       } else if (discount) {
-        let limitCondition = discount.limit && discount.limit > discount.usage;
-        let timeCondition =
-          discount.expires_in && discount.expires_in > new Date();
-
-        if (limitCondition || timeCondition) {
+        if (this.validateDiscount(discount)) {
           if (discount.type === DiscountEnum.Basket) {
             discounts.push({
               percent: discount.percent,
@@ -224,25 +270,34 @@ export class BasketService {
             });
 
             if (discount.percent) {
-              discountAmount = finalAmount * (discount.percent / 100);
-              discountAmount =
-                discountAmount > finalAmount ? 0 : finalAmount - discountAmount;
-            } else if (discount.amount) {
-              discountAmount += discount.amount;
-              finalAmount =
-                discountAmount > finalAmount ? 0 : finalAmount - discountAmount;
-            }
+              const { newDiscountAmount, newPrice } = this.checkDiscountPercent(
+                finalAmount,
+                discount.percent,
+              );
 
-            totalDiscountAmount += discountAmount;
+              finalAmount = newPrice;
+              discountAmount = newDiscountAmount;
+            } else if (discount.amount) {
+              const { newDiscountAmount, newPrice } = this.checkDiscountAmount(
+                finalAmount,
+                discount.amount,
+              );
+
+              finalAmount = newPrice;
+              discountAmount = newDiscountAmount;
+            }
           }
+          totalDiscountAmount += discountAmount;
         }
       }
     }
 
     return {
+      totalPrice,
       finalAmount,
       totalDiscountAmount,
       products,
+      productDiscounts,
       discounts,
     };
   }
