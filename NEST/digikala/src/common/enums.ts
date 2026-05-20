@@ -11,3 +11,13 @@ export enum DiscountEnum {
 export enum SwaggerConsumes {
   UrlEncoded = 'application/x-www-form-urlencoded',
 }
+
+export enum OrderStatus {
+  Pending = 'pending',
+  Ordered = 'ordered',
+  InProgress = 'in-progress',
+  Packed = 'packed',
+  InTransit = 'in-transit',
+  Canceled = 'canceled',
+  Delivered = 'delivered',
+}

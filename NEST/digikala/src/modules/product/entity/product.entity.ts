@@ -10,6 +10,7 @@ import { ProductSizeEntity } from './product-size.entity';
 import { ProductColorEntity } from './product-color.entity';
 import { ProductTypeEnum } from 'src/common/enums';
 import { BasketEntity } from 'src/modules/basket/entities/basket.entity';
+import { OrderItemsEntiy } from 'src/modules/order/entities/order-items.entity';
 
 @Entity('product')
 export class ProductEntity {
@@ -42,6 +43,9 @@ export class ProductEntity {
   colors!: ProductColorEntity[];
   @OneToMany(() => BasketEntity, (basket) => basket.product)
   baskets!: BasketEntity[];
+
+  @OneToMany(() => OrderItemsEntiy, (items) => items.product)
+  order_items!: OrderItemsEntiy[];
 
   @CreateDateColumn()
   created_at!: Date;

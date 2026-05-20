@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { ProductEntity } from './product.entity';
 import { BasketEntity } from 'src/modules/basket/entities/basket.entity';
+import { OrderItemsEntiy } from 'src/modules/order/entities/order-items.entity';
 
 @Entity('product-color')
 export class ProductColorEntity {
@@ -27,11 +28,15 @@ export class ProductColorEntity {
   discount!: number;
   @Column({ default: false })
   active_discount!: boolean;
+
   @ManyToOne(() => ProductEntity, (product) => product.colors, {
     onDelete: 'CASCADE',
   })
+  product!: ProductEntity;
+
   @OneToMany(() => BasketEntity, (basket) => basket.color)
   baskets!: BasketEntity[];
 
-  product!: ProductEntity;
+  @OneToMany(() => OrderItemsEntiy, (items) => items.color)
+  order_items!: OrderItemsEntiy[];
 }

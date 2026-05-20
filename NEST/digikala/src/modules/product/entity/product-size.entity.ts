@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { ProductEntity } from './product.entity';
 import { BasketEntity } from 'src/modules/basket/entities/basket.entity';
+import { OrderItemsEntiy } from 'src/modules/order/entities/order-items.entity';
 
 @Entity('product-size')
 export class ProductSizeEntity {
@@ -32,4 +33,7 @@ export class ProductSizeEntity {
 
   @OneToMany(() => BasketEntity, (basket) => basket.size)
   baskets!: BasketEntity[];
+
+  @OneToMany(() => OrderItemsEntiy, (items) => items.size)
+  order_items!: OrderItemsEntiy[];
 }
