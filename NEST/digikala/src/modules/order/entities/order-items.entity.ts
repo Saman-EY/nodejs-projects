@@ -16,6 +16,8 @@ export class OrderItemsEntiy {
   colorId!: number;
   @Column({ nullable: true })
   sizeId!: number;
+  @Column({ nullable: true })
+  count!: number;
 
   @ManyToOne(() => OrderEntiy, (order) => order.items)
   order!: OrderEntiy;

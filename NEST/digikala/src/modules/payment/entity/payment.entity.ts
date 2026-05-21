@@ -15,7 +15,7 @@ export class PaymentEntity {
   amount!: number;
   @Column({ default: false })
   status!: boolean;
-  @Column()
+  @Column({ unique: true })
   invoice_number!: string;
   @Column({ nullable: true })
   refId!: string;
@@ -29,4 +29,3 @@ export class PaymentEntity {
   @OneToOne(() => OrderEntiy, (order) => order.payment, { onDelete: 'CASCADE' })
   order!: OrderEntiy;
 }
-

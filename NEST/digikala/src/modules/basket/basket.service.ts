@@ -85,7 +85,7 @@ export class BasketService {
       let discountAmount = 0;
 
       if (product?.type === ProductTypeEnum.Single) {
-        totalPrice += product.price;
+        totalPrice += +product.price;
 
         if (product?.active_discount) {
           const { newDiscountAmount, newPrice } = this.checkDiscountPercent(
@@ -93,8 +93,8 @@ export class BasketService {
             discount.percent,
           );
 
-          discountAmount = newDiscountAmount;
-          product.price = newPrice;
+          discountAmount = +newDiscountAmount;
+          product.price = +newPrice;
         }
 
         const existDiscount = productDiscounts.find(
@@ -126,13 +126,13 @@ export class BasketService {
                 discount.amount,
               );
 
-              product.price = newPrice;
-              discountAmount += newDiscountAmount;
+              product.price = +newPrice;
+              discountAmount += +newDiscountAmount;
             }
           }
         }
-        totalDiscountAmount += discountAmount;
-        finalAmount += product.price * count;
+        totalDiscountAmount += +discountAmount;
+        finalAmount += +product.price * +count;
         products.push({
           id: product.id,
           slug: product.slug,
@@ -142,7 +142,7 @@ export class BasketService {
           discount: product.discount,
         } as any);
       } else if (product?.type === ProductTypeEnum.Sizing) {
-        totalPrice += size.price;
+        totalPrice += +size.price;
 
         if (size?.active_discount) {
           const { newDiscountAmount, newPrice } = this.checkDiscountPercent(
@@ -150,8 +150,8 @@ export class BasketService {
             discount.percent,
           );
 
-          discountAmount = newDiscountAmount;
-          size.price = newPrice;
+          discountAmount = +newDiscountAmount;
+          size.price = +newPrice;
         }
 
         const existDiscount = productDiscounts.find(
@@ -183,19 +183,20 @@ export class BasketService {
                 discount.amount,
               );
 
-              size.price = newPrice;
-              discountAmount += newDiscountAmount;
+              size.price = +newPrice;
+              discountAmount += +newDiscountAmount;
             }
           }
         }
-        totalDiscountAmount += discountAmount;
-        finalAmount += size.price * count;
+        totalDiscountAmount += +discountAmount;
+        finalAmount += +size.price * +count;
         products.push({
           id: product.id,
           slug: product.slug,
           title: product.title,
           active_discount: size.active_discount,
           price: size.price,
+          sizeId: size.id,
           discount: size.discount,
           size: size.size,
         } as any);
@@ -208,8 +209,8 @@ export class BasketService {
             discount.percent,
           );
 
-          discountAmount = newDiscountAmount;
-          color.price = newPrice;
+          discountAmount = +newDiscountAmount;
+          color.price = +newPrice;
         }
 
         const existDiscount = productDiscounts.find(
@@ -241,19 +242,20 @@ export class BasketService {
                 discount.amount,
               );
 
-              color.price = newPrice;
-              discountAmount += newDiscountAmount;
+              color.price = +newPrice;
+              discountAmount += +newDiscountAmount;
             }
           }
         }
         totalDiscountAmount += discountAmount;
-        finalAmount += color.price * count;
+        finalAmount += +color.price * +count;
         products.push({
           id: product.id,
           slug: product.slug,
           title: product.title,
           active_discount: color.active_discount,
           price: color.price,
+          colorId: color.id,
           discount: color.discount,
           color_code: color.color_code,
           color_name: color.color_name,
@@ -283,11 +285,11 @@ export class BasketService {
                 discount.amount,
               );
 
-              finalAmount = newPrice;
-              discountAmount = newDiscountAmount;
+              finalAmount = +newPrice;
+              discountAmount = +newDiscountAmount;
             }
           }
-          totalDiscountAmount += discountAmount;
+          totalDiscountAmount += +discountAmount;
         }
       }
     }
