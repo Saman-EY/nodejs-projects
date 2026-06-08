@@ -3,7 +3,7 @@ const userModel = require("./models/user.model");
 const { compareSync } = require("bcrypt");
 
 function passportInit(passport) {
-  const authenticatedUser = async (username, password, done) => {
+  const authenticatedUser = async (username, password, done) => { 
     try {
       const user = await userModel.findOne({ username });
       if (!user) {
