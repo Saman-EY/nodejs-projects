@@ -3,13 +3,19 @@ const { Sequelize } = require("sequelize");
 const { config } = require("dotenv");
 config();
 const sequelize = new Sequelize({
-  dialect: "mysql",
+  dialect: "postgres",
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true, // ✅ needed for Supabase/Render
+      rejectUnauthorized: false,
+    },
+  },
 });
 
 sequelize
