@@ -31,8 +31,8 @@
  *                 example: A great pair of shoes
  *               type:
  *                 type: string
- *                 enum: [Single, Coloring, Sizing]
- *                 example: Coloring
+ *                 enum: [single, coloring, sizing]
+ *                 example: sizing
  *               price:
  *                 type: number
  *                 example: 500000
@@ -56,30 +56,7 @@
  *                     value:
  *                       type: string
  *                       example: leather
- *               colors:
- *                 type: array
- *                 description: Required if type is Coloring
- *                 items:
- *                   type: object
- *                   properties:
- *                     name:
- *                       type: string
- *                       example: Red
- *                     code:
- *                       type: string
- *                       example: "#FF0000"
- *                     price:
- *                       type: number
- *                       example: 500000
- *                     count:
- *                       type: integer
- *                       example: 5
- *                     discount:
- *                       type: integer
- *                       example: 10
- *                     active_discount:
- *                       type: boolean
- *                       example: true
+ *        
  *               sizes:
  *                 type: array
  *                 description: Required if type is Sizing

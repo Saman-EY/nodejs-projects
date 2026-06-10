@@ -19,7 +19,7 @@
  *         required: true
  *         schema:
  *           type: string
- *           enum: [Pending, Packed, InTransit, Delivered, Canceled]
+ *           enum: [pending, packed, in-transit, delivered, canceled, ordered, in-progress]
  *         description: Filter orders by status
  *     responses:
  *       200:

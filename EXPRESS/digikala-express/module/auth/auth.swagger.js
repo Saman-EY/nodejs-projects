@@ -28,7 +28,7 @@
  *                   type: string
  *                 code:
  *                   type: integer
- *                   example: 12345
+ *                   example: 1234
  */
 
 /**
