@@ -3,6 +3,9 @@ const express = require("express");
 const { sequelize } = require("./config/sequelize");
 const { initialDatabase } = require("./config/model.initial");
 const { mainRouter } = require("./module/main.routes");
+const SwaggerConfig = require("./config/swagger.config");
+
+
 config();
 async function main() {
   const app = express();
@@ -10,6 +13,9 @@ async function main() {
   app.use(express.urlencoded({ extended: true }));
   await initialDatabase();
   app.use(mainRouter);
+
+  // swagger
+  SwaggerConfig(app);
 
   // not found
   app.use((req, res, next) => {
@@ -37,7 +43,8 @@ async function main() {
   const PORT = process.env.PORT ?? 3002;
 
   app.listen(PORT, () => {
-    console.log("server running");
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port http://localhost:2500/swagger`);
   });
 }
 

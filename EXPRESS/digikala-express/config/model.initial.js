@@ -18,7 +18,6 @@ async function initialDatabase() {
   ProductSize.belongsTo(Product, { foreignKey: "productId", targetKey: "id" });
 
   User.hasOne(Otp, { foreignKey: "userId", sourceKey: "id", as: "otp" });
-  // Otp.hasOne(User, { foreignKey: "otpId", sourceKey: "id", as: "user" });
   Otp.belongsTo(User, { foreignKey: "userId", targetKey: "id" });
 
   Product.hasMany(Basket, { foreignKey: "productId", sourceKey: "id", as: "basket" });
@@ -42,15 +41,29 @@ async function initialDatabase() {
 
   User.hasMany(Order, { foreignKey: "userId", as: "order", sourceKey: "id" });
   User.hasMany(Payment, { foreignKey: "userId", as: "payment", sourceKey: "id" });
-  Order.hasOne(Payment, { foreignKey: "orderId", as: "payment", sourceKey: "id", onDelete: "CASCADE" });
   Payment.hasOne(Order, { foreignKey: "paymentId", as: "order", sourceKey: "id", onDelete: "CASCADE" });
+  Order.belongsTo(Payment, { foreignKey: "paymentId", as: "payment", targetKey: "id" });
 
   Role.hasMany(RolePermission, { foreignKey: "roleId", as: "rolePermissions", sourceKey: "id" });
   Permission.hasMany(RolePermission, { foreignKey: "permissionId", as: "rolePermissions", sourceKey: "id" });
   RolePermission.belongsTo(Role, { foreignKey: "roleId", targetKey: "id" });
   RolePermission.belongsTo(Permission, { foreignKey: "permissionId", targetKey: "id" });
 
-  await sequelize.sync({ alter: true });
+  // await sequelize.sync({ alter: true });
+  await User.sync({ alter: true });
+  await Otp.sync({ alter: true });
+  await Role.sync({ alter: true });
+  await Permission.sync({ alter: true });
+  await RolePermission.sync({ alter: true });
+  await Discount.sync({ alter: true });
+  await Product.sync({ alter: true });
+  await ProductDetail.sync({ alter: true });
+  await ProductColor.sync({ alter: true });
+  await ProductSize.sync({ alter: true });
+  await Basket.sync({ alter: true });
+  await Payment.sync({ alter: true }); // ✅ Payment before Order
+  await Order.sync({ alter: true }); // ✅ Order after Payment
+  await OrderItem.sync({ alter: true });
 }
 
 module.exports = {

@@ -19,10 +19,7 @@ const Payment = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    orderId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
+   
     userId: {
       type: DataTypes.INTEGER,
       allowNull: true,
