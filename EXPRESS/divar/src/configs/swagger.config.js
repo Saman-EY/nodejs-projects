@@ -15,12 +15,12 @@ function SwaggerConfig(app) {
         },
       },
       servers: [
+        // {
+        //   url: "http://localhost:3000",
+        //   description: "Development server",
+        // },
         {
-          url: "http://localhost:3000",
-          description: "Development server",
-        },
-        {
-          url: "",
+          url: "https://divar-express.onrender.com",
           description: "Production server",
         },
       ],
