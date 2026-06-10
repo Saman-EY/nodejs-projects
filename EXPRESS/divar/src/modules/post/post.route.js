@@ -5,7 +5,7 @@ const AuthorizationGuard = require("../../common/guard/authorization.guard");
 
 const router = Router();
 
-router.get("/create", AuthorizationGuard, postController.createPostPage);
+router.get("/get-single", AuthorizationGuard, postController.createPostPage);
 router.post("/create", AuthorizationGuard, upload.array("images", 10), postController.create);
 router.get("/my", AuthorizationGuard, postController.findMyPosts);
 router.get("/delete/:id", AuthorizationGuard, postController.remove);

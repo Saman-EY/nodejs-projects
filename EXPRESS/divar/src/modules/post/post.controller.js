@@ -38,11 +38,17 @@ class OptionController {
         },
       ]);
 
-      res.render("./pages/panel/create-post.ejs", {
+      // res.render("./pages/panel/create-post.ejs", {
+      //   categories,
+      //   showBack,
+      //   category: category?._id.toString(),
+      //   options,
+      // });
+
+      res.json({
         categories,
-        showBack,
-        category: category?._id.toString(),
         options,
+        category: category?._id.toString(),
       });
     } catch (error) {
       next(error);
@@ -66,7 +72,7 @@ class OptionController {
       const userId = req.user._id;
       const { address, province, city, district } = await getAddressDetails(lat, lng);
 
-      await this.#service.create({
+      const data = await this.#service.create({
         userId,
         title,
         amount,
@@ -80,9 +86,9 @@ class OptionController {
         city,
         district,
       });
-      // res.status(201).json({ message: PostMessages.Created });
-      this.#success_message = PostMessages.Created;
-      return res.redirect("/post/my");
+      // this.#success_message = PostMessages.Created;
+      // return res.redirect("/post/my");
+      res.status(201).json({ message: PostMessages.Created, data });
     } catch (error) {
       next(error);
     }
@@ -92,13 +98,18 @@ class OptionController {
     try {
       const userId = req.user._id;
       const posts = await this.#service.find(userId);
-      res.render("./pages/panel/posts.ejs", {
+      // res.render("./pages/panel/posts.ejs", {
+      //   posts,
+      //   count: posts.length,
+      //   success_message: this.#success_message,
+      //   error: null,
+      // });
+      // this.#success_message = null;
+
+      res.json({
+        message: "success",
         posts,
-        count: posts.length,
-        success_message: this.#success_message,
-        error: null,
       });
-      this.#success_message = null;
     } catch (error) {
       next(error);
     }

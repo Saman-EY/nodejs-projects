@@ -23,10 +23,7 @@ function SwaggerConfig(app) {
         { name: "RBAC", description: "Role-based access control" },
       ],
       servers: [
-        // {
-        //   url: "http://localhost:2500",
-        //   description: "Development server",
-        // },
+    
         {
           url: "https://shop-express-kj5q.onrender.com",
           description: "Production server",
