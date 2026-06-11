@@ -23,7 +23,7 @@ export class DiscountService {
   ) {}
 
   async create(discountDto: DiscountDto) {
-    const { amount, code, expires_in, limit, percent, productId, type } =
+    let { amount, code, expires_in, limit, percent, productId, type } =
       discountDto;
 
     let discountObject: DeepPartial<DiscountEntity> = { code };
@@ -43,7 +43,7 @@ export class DiscountService {
     if (amount && isNaN(parseInt(amount.toString()))) {
       throw new BadRequestException('amount should be a number');
     } else if (amount) discountObject.amount = +amount;
-    else if (percent && !isNaN(parseInt(percent.toString()))) {
+    else if (percent && isNaN(parseInt(percent.toString()))) {
       throw new BadRequestException('percent should be a number');
     } else if (percent) discountObject.percent = +percent;
 
@@ -90,7 +90,7 @@ export class DiscountService {
     if (amount && isNaN(parseInt(amount.toString()))) {
       throw new BadRequestException('amount should be a number');
     } else if (amount) discount.amount = +amount;
-    else if (percent && !isNaN(parseInt(percent.toString()))) {
+    else if (percent && isNaN(parseInt(percent.toString()))) {
       throw new BadRequestException('percent should be a number');
     } else if (percent) discount.percent = +percent;
 

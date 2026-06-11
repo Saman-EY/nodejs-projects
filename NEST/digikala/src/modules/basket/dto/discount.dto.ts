@@ -1,6 +1,6 @@
 import { ApiProperty} from '@nestjs/swagger';
 
-export class DiscountDto {
+export class BasketDiscountDto {
   @ApiProperty()
   code!: string;
 }

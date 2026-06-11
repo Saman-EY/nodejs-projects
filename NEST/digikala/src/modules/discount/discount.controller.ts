@@ -19,10 +19,11 @@ export class DiscountController {
   constructor(private discountService: DiscountService) {}
 
   @Post('')
-  @ApiConsumes(SwaggerConsumes.UrlEncoded)
+  @ApiConsumes(SwaggerConsumes.Json)
   create(@Body() discountDto: DiscountDto) {
     return this.discountService.create(discountDto);
   }
+  
   @Get('')
   find() {
     return this.discountService.find();
