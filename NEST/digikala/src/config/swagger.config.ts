@@ -1,21 +1,24 @@
-import { INestApplication } from "@nestjs/common";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { SecuritySchemeObject } from "@nestjs/swagger/dist/interfaces/open-api-spec.interface";
+import { INestApplication } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SecuritySchemeObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
 export function SwaggerConfigInit(app: INestApplication) {
   const document = new DocumentBuilder()
-    .setTitle("Digikala")
-    .setDescription("Digikala Backend With Nestjs!")
-    .setVersion("v0.0.1")
-    .addBearerAuth(SwaggerAuthConfig, "Authorization")
+    .setTitle('Digikala')
+    .setDescription('Digikala Backend With Nestjs!')
+    .setVersion('v0.0.1')
+    // .addServer('http://localhost:3000', 'Local')
+    // .addServer('https://api.digikala.com', 'Production')
+    .addBearerAuth(SwaggerAuthConfig, 'Authorization')
+
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, document);
-  SwaggerModule.setup("/swagger", app, swaggerDocument);
+  SwaggerModule.setup('/swagger', app, swaggerDocument);
 }
 
 const SwaggerAuthConfig: SecuritySchemeObject = {
-  type: "http",
-  bearerFormat: "JWT",
-  in: "header",
-  scheme: "bearer",
+  type: 'http',
+  bearerFormat: 'JWT',
+  in: 'header',
+  scheme: 'bearer',
 };
