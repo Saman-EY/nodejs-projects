@@ -12,13 +12,13 @@ export class MenuEntity {
   id!: number;
   @Column()
   name!: string;
-  @Column({ type: "double" })
+  @Column({ type: "decimal" })
   price!: number;
-  @Column({ type: "double", default: 0 })
+  @Column({ type: "decimal", default: 0 })
   discount!: number;
   @Column({ default: false })
   is_active!: boolean;
-  @Column({ type: "double", nullable: true })
+  @Column({ type: "decimal", nullable: true })
   score!: number;
   @Column()
   image!: string;

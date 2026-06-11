@@ -8,9 +8,9 @@ export class DiscountEntity {
   id!: number;
   @Column()
   code!: string;
-  @Column({ nullable: true, type: "double" })
+  @Column({ nullable: true, type: "decimal" })
   amount!: number;
-  @Column({ nullable: true, type: "double" })
+  @Column({ nullable: true, type: "decimal" })
   percent!: number;
   @Column({ nullable: true })
   expires_in!: Date;
