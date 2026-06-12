@@ -11,18 +11,19 @@ import { FilterBlog } from "src/common/decorators/filter.decorator";
 
 @Controller("blog")
 @ApiTags("Blog")
-@ApiBearerAuth("Authorization")
 @UseGuards(AuthGaurd)
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @Post()
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+  @ApiBearerAuth("Authorization")
   createBlog(@Body() blogDto: CreateBlogDto) {
     return this.blogService.create(blogDto);
   }
 
   @Get("/my-blogs")
+  @ApiBearerAuth("Authorization")
   myblogs() {
     return this.blogService.getMyBlogs();
   }
@@ -43,22 +44,26 @@ export class BlogController {
   }
 
   @Delete("/:id")
+  @ApiBearerAuth("Authorization")
   delete(@Param("id", ParseIntPipe) id: number) {
     return this.blogService.delete(id);
   }
 
   @Put("/:id")
+  @ApiBearerAuth("Authorization")
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   update(@Param("id", ParseIntPipe) id: number, @Body() updateDto: UpdateBlogDto) {
     return this.blogService.update(id, updateDto);
   }
 
   @Put("/like/:id")
+  @ApiBearerAuth("Authorization")
   likeToggle(@Param("id", ParseIntPipe) id: number) {
     return this.blogService.likeToggle(id);
   }
 
   @Put("/bookmark/:id")
+  @ApiBearerAuth("Authorization")
   bookmaarkToggle(@Param("id", ParseIntPipe) id: number) {
     return this.blogService.bookmarkToggle(id);
   }
